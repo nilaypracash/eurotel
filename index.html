@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eurotel — A Portuguese Heritage Hotel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --whitewash: #F5F0E6;
+      --whitewash-dim: rgba(245, 240, 230, 0.66);
+      --terracotta: #C15A34;   /* now only a small warm accent */
+      --terracotta-hover: #A94A28;
+      --green: #2E4636;        /* deep heritage green — overlay + dark grounds + CTA */
+      --green-deep: #1F3227;
+      --green-hover: #263A2C;
+      --charcoal: #2A2622;
+      --brass: #B89152;
+      --brass-soft: #CDAE74;
+
+      --serif: "Fraunces", Georgia, serif;
+      --sans: "Jost", system-ui, sans-serif;
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--charcoal);
+      background: var(--whitewash);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .eyebrow {
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 0.68rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    /* ---------- Shared azulejo pattern ---------- */
+    .azulejo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      color: var(--whitewash);
+    }
+
+    /* ---------- Top navigation ---------- */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem clamp(1.4rem, 4vw, 3.6rem);
+      color: var(--whitewash);
+      transition: padding 0.45s var(--ease), background 0.45s var(--ease), backdrop-filter 0.45s var(--ease), box-shadow 0.45s var(--ease);
+    }
+    .nav.is-scrolled {
+      padding-top: 1.05rem;
+      padding-bottom: 1.05rem;
+      background: rgba(46, 70, 54, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 1px 0 rgba(176, 141, 87, 0.28);
+    }
+
+    .nav__group {
+      display: flex;
+      align-items: center;
+      gap: clamp(1.4rem, 2.4vw, 2.9rem);
+    }
+
+    .nav__link {
+      font-size: 0.86rem;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      opacity: 0.82;
+      transition: opacity 0.35s var(--ease);
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .nav__link::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 100%; height: 1px;
+      background: var(--brass-soft);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease);
+    }
+    .nav__link:hover { opacity: 1; }
+    .nav__link:hover::after { transform: scaleX(1); }
+
+    .nav__util { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 400; opacity: 0.9; }
+    .nav__util:hover { opacity: 1; }
+
+    .lang { display: flex; gap: 0.5rem; align-items: center; }
+    .lang button {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--sans); color: var(--whitewash);
+      font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+      opacity: 0.5; transition: opacity 0.3s var(--ease);
+    }
+    .lang button.is-active { opacity: 1; }
+    .lang span { opacity: 0.4; font-size: 0.62rem; }
+
+    .menu-toggle {
+      display: flex; align-items: center; gap: 0.7rem;
+      background: none; border: none; cursor: pointer;
+      font-family: var(--sans); color: var(--whitewash);
+      font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    }
+    .menu-toggle__bars { display: inline-flex; flex-direction: column; gap: 4px; }
+    .menu-toggle__bars i { display: block; width: 22px; height: 1px; background: var(--whitewash); transition: transform 0.35s var(--ease); }
+    .menu-toggle:hover .menu-toggle__bars i:first-child { transform: translateX(3px); }
+
+    .nav__mobile-only { display: none; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--whitewash);
+      text-align: center;
+      padding-bottom: clamp(88px, 12vh, 128px); /* reserve space so the lockup centers above the sticky bar */
+    }
+
+    /* Background layers: photo slot -> indigo wash -> tile -> vignette */
+    .hero__bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(120% 95% at 50% 12%, #40604A 0%, #2E4636 45%, var(--green-deep) 100%);
+    }
+    /* Drop a real photo in here: set the url() below and it layers over the wash */
+    .hero__photo {
+      position: absolute; inset: 0; z-index: 1;
+      overflow: hidden;
+      will-change: transform;
+    }
+    .hero__video { position: absolute; inset: 0; width: 100%; height: 100%; }
+    /* blurred, zoomed copy fills the edges so there are no bars */
+    .hero__video--blur { object-fit: cover; transform: scale(1.14); filter: blur(26px) brightness(0.82); }
+    /* sharp copy shows the whole 4:3 frame, centered */
+    .hero__video--main { object-fit: contain; filter: brightness(0.9); }
+    .hero__tile { z-index: 2; color: var(--whitewash); opacity: 0.07; }
+    .hero__tint {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: var(--green);
+      mix-blend-mode: multiply;
+      opacity: 0.5;
+    }
+    .hero__vignette {
+      position: absolute; inset: 0; z-index: 3; pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(16,26,20,0.5) 0%, rgba(16,26,20,0) 26%, rgba(16,26,20,0) 62%, rgba(13,22,16,0.72) 100%);
+    }
+
+    .hero__inner {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1.5rem;
+      will-change: transform, opacity;
+    }
+
+    .lockup__place {
+      color: var(--brass-soft);
+      letter-spacing: 0.42em;
+      font-size: 0.72rem;
+      margin-left: 0.42em; /* optical: balance trailing tracking */
+      margin-bottom: 1.9rem;
+    }
+
+    .lockup__emblem { width: 66px; height: 66px; margin-bottom: 1.6rem; color: var(--whitewash); opacity: 0.95; }
+
+    .lockup__name {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-optical-sizing: auto;
+      font-size: clamp(3.4rem, 9vw, 7.2rem);
+      line-height: 0.9;
+      letter-spacing: 0.14em;
+      margin-left: 0.14em;
+      font-variation-settings: "SOFT" 0, "WONK" 0;
+    }
+
+    .lockup__rule {
+      width: 46px; height: 1px; background: var(--brass);
+      margin: 1.5rem 0 1.2rem;
+      opacity: 0.8;
+    }
+
+    .lockup__desc {
+      color: var(--brass-soft);
+      letter-spacing: 0.4em;
+      font-size: 0.74rem;
+      margin-left: 0.4em;
+    }
+
+    .lockup__tag {
+      margin-top: 2rem;
+      max-width: 30ch;
+      font-family: var(--serif);
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.22rem);
+      line-height: 1.5;
+      color: var(--whitewash-dim);
+    }
+
+    /* ---------- Booking / enquiry bar ---------- */
+    .booking {
+      position: fixed;          /* sticky throughout the whole page */
+      z-index: 45;
+      bottom: clamp(1rem, 3.2vh, 2.4rem);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1120px, calc(100% - clamp(1.6rem, 5vw, 4rem)));
+      display: flex;
+      align-items: stretch;
+      background: var(--whitewash);
+      box-shadow: 0 18px 48px rgba(13, 22, 16, 0.34);
+    }
+    .booking__field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 1.15rem clamp(1.2rem, 2.2vw, 2.1rem);
+      border-right: 1px solid rgba(42, 38, 34, 0.12);
+      text-align: left;
+    }
+    .booking__field label {
+      font-family: var(--sans);
+      font-size: 0.6rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .booking__field input,
+    .booking__field select {
+      font-family: var(--serif);
+      font-size: 1.02rem;
+      color: var(--charcoal);
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .booking__field input::-webkit-calendar-picker-indicator { opacity: 0.35; cursor: pointer; }
+    .booking__field input:focus-visible,
+    .booking__field select:focus-visible { color: var(--green); }
+
+    .booking__submit {
+      flex: 0 0 clamp(180px, 22%, 260px);
+      border: none;
+      cursor: pointer;
+      background: var(--green);
+      color: var(--whitewash);
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      transition: background 0.35s var(--ease);
+    }
+    .booking__submit:hover { background: var(--green-hover); }
+
+    .btn {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 1rem 2.4rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .btn--terracotta { background: var(--terracotta); color: var(--whitewash); }
+    .btn--terracotta:hover { background: var(--terracotta-hover); transform: translateY(-2px); }
+
+    /* ---------- Scroll-pinned story reveal ---------- */
+    .reveal {
+      position: relative;
+      height: 260vh;               /* scroll track: the extra height is what stays "locked" */
+      background: var(--green-deep);
+    }
+    .reveal__sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Drop a video or image in here — the <video>'s own <source> or a background-image */
+    .reveal__bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform-origin: center;
+      will-change: transform;
+      background: radial-gradient(130% 115% at 66% 22%, #3B5A47 0%, #24382C 55%, #16241C 100%);
+    }
+    .reveal__scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(16,26,20,0.55) 0%, rgba(16,26,20,0.34) 42%, rgba(16,26,20,0.62) 100%);
+    }
+    .reveal__content {
+      position: relative;
+      z-index: 2;
+      max-width: 1000px;
+      padding: 0 clamp(1.4rem, 5vw, 3rem);
+      text-align: center;
+    }
+    .reveal__eyebrow {
+      color: var(--whitewash);
+      opacity: 0.92;
+      margin-bottom: 1.9rem;
+    }
+    .reveal__text {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(1.45rem, 3.3vw, 2.5rem);
+      line-height: 1.45;
+      color: var(--whitewash);
+    }
+    .reveal__text .word {
+      display: inline-block;
+      opacity: 0.18;
+      will-change: opacity, transform, filter;
+    }
+
+    /* ---------- Rooms showcase (pinned media + scrolling text) ---------- */
+    .showcase {
+      position: relative;
+      height: 260vh;                 /* scroll track that drives the scrub + dwell */
+      background: var(--whitewash);
+      color: var(--charcoal);
+    }
+    .showcase__pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100svh;
+      display: grid;
+      grid-template-columns: 40% 60%;
+      overflow: hidden;
+    }
+    .showcase__text { position: relative; z-index: 2; overflow: hidden; }
+    .rm {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 8vh clamp(1.5rem, 4vw, 3rem) 8vh clamp(1.5rem, 8vw, 7rem);
+      will-change: transform, opacity;
+    }
+    .rm__inner { max-width: 30rem; will-change: transform, opacity; }
+    .rm__eyebrow { color: var(--green); opacity: 0.9; margin-bottom: 1.4rem; }
+    .rm__name {
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(2.6rem, 6vw, 4.6rem);
+      line-height: 0.98;
+      letter-spacing: 0.02em;
+      color: var(--charcoal);
+    }
+    .rm__desc {
+      margin-top: 1.8rem;
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: rgba(42, 38, 34, 0.78);
+      max-width: 26rem;
+    }
+    .rm__more {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1.7rem;
+      font-family: var(--sans);
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      opacity: 0.72;
+      transition: opacity 0.3s var(--ease), color 0.3s var(--ease);
+    }
+    .rm__more:hover { opacity: 1; color: var(--green); }
+    .rm__actions { display: flex; gap: 1rem; margin-top: 2.3rem; flex-wrap: wrap; }
+    .btn-ghost, .btn-solid {
+      font-family: var(--sans);
+      font-size: 0.74rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 0.95rem 2.2rem;
+      cursor: pointer;
+      transition: background 0.35s var(--ease), border-color 0.35s var(--ease), color 0.35s var(--ease), transform 0.35s var(--ease);
+    }
+    .btn-ghost { border: 1px solid rgba(42, 38, 34, 0.35); color: var(--charcoal); }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+    .btn-solid { background: var(--green); color: var(--whitewash); border: 1px solid var(--green); }
+    .btn-solid:hover { background: var(--green-hover); border-color: var(--green-hover); transform: translateY(-2px); }
+
+    .showcase__media { position: relative; }
+    .showcase__sticky {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 0;
+    }
+    .showcase__frame {
+      position: relative;
+      width: 100%;
+      height: 62vh;                 /* landscape rectangle, flush to the right edge */
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(30, 40, 30, 0.18);
+    }
+    .media {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(100%);   /* stacked below; JS slides them with scroll */
+      will-change: transform;
+    }
+    .media video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .media__ph {
+      position: relative;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.02em;
+    }
+    .media--1 { background: linear-gradient(150deg, #3E5C48, #26402F); transform: translateY(0); }
+    .media--2 { background: linear-gradient(150deg, #6E6A52, #46422F); }
+    .media--3 { background: linear-gradient(150deg, #9A7B54, #5E4630); }
+
+    @media (max-width: 860px) {
+      .showcase { height: auto; }
+      .showcase__pin { position: static; height: auto; display: block; overflow: visible; }
+      .showcase__media { display: none; } /* TODO: dedicated stacked media treatment for mobile */
+      .rm {
+        position: relative;
+        inset: auto;
+        padding: 4rem 1.5rem;
+        border-top: 1px solid rgba(42, 38, 34, 0.08);
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    /* reduced-motion fallback: static stacked reading, no scrub */
+    .showcase--static { height: auto; }
+    .showcase--static .showcase__pin { position: static; height: auto; display: block; overflow: visible; }
+    .showcase--static .rm {
+      position: relative;
+      inset: auto;
+      opacity: 1 !important;
+      transform: none !important;
+      border-top: 1px solid rgba(42, 38, 34, 0.08);
+    }
+    .showcase--static .showcase__media { display: none; }
+
+    /* ---------- Full-screen menu overlay ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--green);
+      color: var(--whitewash);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s var(--ease), visibility 0.5s var(--ease);
+      overflow-y: auto;
+    }
+    .overlay.is-open { opacity: 1; visibility: visible; }
+    .overlay__tile { color: var(--whitewash); opacity: 0.05; }
+
+    .overlay__close {
+      position: fixed; top: 2rem; right: clamp(1.4rem, 4vw, 3.6rem);
+      z-index: 62;
+      background: none; border: none; cursor: pointer;
+      color: var(--whitewash);
+      display: flex; align-items: center; gap: 0.7rem;
+      font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+    }
+    .overlay__close svg { width: 20px; height: 20px; }
+
+    .overlay__inner {
+      position: relative; z-index: 61;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 6rem 1.5rem 4rem;
+      text-align: center;
+    }
+
+    .overlay__brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 3rem; }
+    .overlay__brand svg { width: 44px; height: 44px; color: var(--brass-soft); margin-bottom: 0.9rem; }
+    .overlay__brand span {
+      font-family: var(--serif); font-size: 1.5rem; letter-spacing: 0.3em; margin-left: 0.3em; color: var(--brass-soft);
+    }
+
+    .overlay__primary { list-style: none; margin-bottom: 2.6rem; }
+    .overlay__primary li { overflow: hidden; }
+    .overlay__primary a {
+      display: inline-block;
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(1.7rem, 4.2vw, 2.5rem);
+      line-height: 1.75;
+      transition: color 0.35s var(--ease), letter-spacing 0.4s var(--ease);
+    }
+    .overlay__primary a:hover { color: var(--brass-soft); letter-spacing: 0.03em; }
+
+    .overlay__secondary {
+      list-style: none; display: flex; flex-wrap: wrap; gap: 1.4rem 2.2rem; justify-content: center;
+      margin-bottom: 3.2rem;
+    }
+    .overlay__secondary a { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass-soft); opacity: 0.85; }
+    .overlay__secondary a:hover { opacity: 1; }
+
+    .overlay__contact { font-family: var(--serif); font-weight: 300; font-style: italic; color: var(--whitewash-dim); line-height: 1.9; font-size: 0.98rem; margin-bottom: 2rem; }
+
+    .overlay__social { display: flex; gap: 1.5rem; }
+    .overlay__social a { opacity: 0.75; transition: opacity 0.3s var(--ease); }
+    .overlay__social a:hover { opacity: 1; }
+    .overlay__social svg { width: 20px; height: 20px; }
+
+    /* staggered reveal of primary links when opened */
+    .overlay__primary a {
+      transform: translateY(120%);
+      transition: transform 0.6s var(--ease), color 0.35s var(--ease), letter-spacing 0.4s var(--ease);
+    }
+    .overlay.is-open .overlay__primary a { transform: translateY(0); }
+    .overlay.is-open .overlay__primary li:nth-child(1) a { transition-delay: 0.10s; }
+    .overlay.is-open .overlay__primary li:nth-child(2) a { transition-delay: 0.16s; }
+    .overlay.is-open .overlay__primary li:nth-child(3) a { transition-delay: 0.22s; }
+    .overlay.is-open .overlay__primary li:nth-child(4) a { transition-delay: 0.28s; }
+    .overlay.is-open .overlay__primary li:nth-child(5) a { transition-delay: 0.34s; }
+    .overlay.is-open .overlay__primary li:nth-child(6) a { transition-delay: 0.40s; }
+
+    body.menu-open { overflow: hidden; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .nav__desktop-links { display: none; }
+      .nav__util-contact { display: none; }
+      .nav { padding: 1.5rem 1.4rem; }
+      .lockup__name { letter-spacing: 0.1em; }
+      .booking { flex-direction: column; width: calc(100% - 1.6rem); }
+      .booking__field { border-right: none; border-bottom: 1px solid rgba(42, 38, 34, 0.12); }
+      .booking__submit { flex: 0 0 auto; padding: 1.15rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+      html { scroll-behavior: auto; }
+      .overlay__primary a { transition: color 0.2s, opacity 0.2s; transform: none; }
+      .btn:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav" aria-label="Primary">
+    <div class="nav__group nav__desktop-links">
+      <a class="nav__link" href="#rooms">Rooms</a>
+      <a class="nav__link" href="#hotel">The Hotel</a>
+      <a class="nav__link" href="#experiences">Experiences</a>
+      <a class="nav__link" href="#dining">Dining</a>
+      <a class="nav__link" href="#gallery">Gallery</a>
+    </div>
+    <div class="nav__group">
+      <a class="nav__util nav__util-contact" href="#contact">Contact</a>
+      <div class="lang" role="group" aria-label="Language">
+        <button class="is-active" type="button">EN</button>
+        <span>/</span>
+        <button type="button">PT</button>
+      </div>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="overlay">
+        Menu
+        <span class="menu-toggle__bars" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="hero__bg"></div>
+    <!-- Hero video: add a <source> below (or set background-image on .hero__photo for a still) -->
+    <div class="hero__photo">
+      <video class="hero__video hero__video--blur" autoplay muted loop playsinline>
+        <source src="media/hero.mp4" type="video/mp4" />
+      </video>
+      <video class="hero__video hero__video--main" autoplay muted loop playsinline>
+        <source src="media/hero.mp4" type="video/mp4" />
+      </video>
+    </div>
+
+    <!-- Signature: azulejo tile field -->
+    <svg class="azulejo hero__tile" aria-hidden="true">
+      <defs>
+        <pattern id="azulejo" width="120" height="120" patternUnits="userSpaceOnUse">
+          <g fill="none" stroke="currentColor" stroke-width="1.1">
+            <circle cx="60" cy="60" r="34" />
+            <circle cx="60" cy="60" r="9" />
+            <path d="M60 26 Q71 60 60 94 Q49 60 60 26 Z" />
+            <path d="M26 60 Q60 71 94 60 Q60 49 26 60 Z" />
+            <circle cx="0" cy="0" r="17" />
+            <circle cx="120" cy="0" r="17" />
+            <circle cx="0" cy="120" r="17" />
+            <circle cx="120" cy="120" r="17" />
+            <path d="M60 0 L60 12 M60 108 L60 120 M0 60 L12 60 M108 60 L120 60" />
+          </g>
+        </pattern>
+      </defs>
+    </svg>
+
+    <div class="hero__tint"></div>
+    <div class="hero__vignette"></div>
+
+    <div class="hero__inner">
+      <p class="eyebrow lockup__place">Diu · India</p>
+
+      <!-- Armillary sphere — the Portuguese emblem -->
+      <svg class="lockup__emblem" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+        <circle cx="50" cy="50" r="34" />
+        <ellipse cx="50" cy="50" rx="34" ry="12" />
+        <ellipse cx="50" cy="50" rx="12" ry="34" />
+        <ellipse cx="50" cy="50" rx="26" ry="34" transform="rotate(32 50 50)" />
+        <line x1="50" y1="8" x2="50" y2="92" />
+        <circle cx="50" cy="50" r="4.5" fill="currentColor" stroke="none" />
+      </svg>
+
+      <h1 class="lockup__name">EUROTEL</h1>
+      <span class="lockup__rule" aria-hidden="true"></span>
+      <p class="eyebrow lockup__desc">Heritage Hotel</p>
+
+      <p class="lockup__tag">Whitewashed walls, blue tiles, and the unhurried luxury of a Portuguese afternoon in Diu.</p>
+    </div>
+
+    <form class="booking" aria-label="Check dates and enquire">
+      <div class="booking__field">
+        <label for="checkin">Check-in</label>
+        <input type="date" id="checkin" name="checkin" />
+      </div>
+      <div class="booking__field">
+        <label for="checkout">Check-out</label>
+        <input type="date" id="checkout" name="checkout" />
+      </div>
+      <div class="booking__field">
+        <label for="guests">Guests</label>
+        <select id="guests" name="guests">
+          <option value="" disabled selected>Select</option>
+          <option>1 guest</option>
+          <option>2 guests</option>
+          <option>3 guests</option>
+          <option>4 guests</option>
+          <option>5+ guests</option>
+        </select>
+      </div>
+      <button class="booking__submit" type="submit">Enquire</button>
+    </form>
+  </header>
+
+  <!-- ============ SCROLL-PINNED STORY ============ -->
+  <section class="reveal" id="hotel" aria-label="About Eurotel">
+    <div class="reveal__sticky">
+      <!-- Replace with your footage: add a <source> below, or set background-image on .reveal__bg -->
+      <video class="reveal__bg" autoplay muted loop playsinline poster="">
+        <!-- <source src="images/story.mp4" type="video/mp4" /> -->
+      </video>
+      <div class="reveal__scrim"></div>
+      <div class="reveal__content">
+        <p class="eyebrow reveal__eyebrow">A Portuguese Heritage Hotel in Diu</p>
+        <p class="reveal__text" id="revealText">Behind whitewashed walls in old Diu, Eurotel keeps time the Portuguese way. Slowly. Let the courtyard breathe. Let the blue tiles cool the afternoon. Let the sea find you through open shutters. Some places you visit. This one stays with you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROOMS SHOWCASE ============ -->
+  <section class="showcase" id="rooms" aria-label="Rooms and suites">
+    <div class="showcase__pin">
+    <div class="showcase__col showcase__text">
+      <article class="rm" data-room="0">
+        <div class="rm__inner">
+          <p class="eyebrow rm__eyebrow">Sea Facing Suite</p>
+          <h2 class="rm__name">FORTIM</h2>
+          <p class="rm__desc">A suite set above the old fort walls, with a private balcony that opens straight onto the water.</p>
+          <a class="rm__more" href="#">&rarr; Show details</a>
+          <div class="rm__actions">
+            <a class="btn-ghost" href="#contact">Enquire</a>
+            <a class="btn-solid" href="#contact">Book</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="rm" data-room="1">
+        <div class="rm__inner">
+          <p class="eyebrow rm__eyebrow">Courtyard Room</p>
+          <h2 class="rm__name">CASA AZUL</h2>
+          <p class="rm__desc">A calm room wrapped around the blue tiled courtyard, shaded and cool through the long afternoon.</p>
+          <a class="rm__more" href="#">&rarr; Show details</a>
+          <div class="rm__actions">
+            <a class="btn-ghost" href="#contact">Enquire</a>
+            <a class="btn-solid" href="#contact">Book</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="rm" data-room="2">
+        <div class="rm__inner">
+          <p class="eyebrow rm__eyebrow">Garden Villa</p>
+          <h2 class="rm__name">PÁTIO</h2>
+          <p class="rm__desc">A private villa opening to the central garden, with a wooden veranda and cool stone floors underfoot.</p>
+          <a class="rm__more" href="#">&rarr; Show details</a>
+          <div class="rm__actions">
+            <a class="btn-ghost" href="#contact">Enquire</a>
+            <a class="btn-solid" href="#contact">Book</a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="showcase__col showcase__media" aria-hidden="true">
+      <div class="showcase__sticky">
+        <div class="showcase__frame">
+          <div class="media media--1 is-active">
+            <span class="media__ph">Fortim video</span>
+            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-fortim.mp4" type="video/mp4" /> --></video>
+          </div>
+          <div class="media media--2">
+            <span class="media__ph">Casa Azul video</span>
+            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-casaazul.mp4" type="video/mp4" /> --></video>
+          </div>
+          <div class="media media--3">
+            <span class="media__ph">Pátio video</span>
+            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-patio.mp4" type="video/mp4" /> --></video>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- ============ MENU OVERLAY ============ -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Site menu">
+    <svg class="azulejo overlay__tile" aria-hidden="true">
+      <rect width="100%" height="100%" fill="url(#azulejo)" />
+    </svg>
+
+    <button class="overlay__close" type="button" aria-label="Close menu">
+      Close
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
+
+    <div class="overlay__inner">
+      <div class="overlay__brand">
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="50" cy="50" r="34" />
+          <ellipse cx="50" cy="50" rx="34" ry="12" />
+          <ellipse cx="50" cy="50" rx="12" ry="34" />
+          <line x1="50" y1="8" x2="50" y2="92" />
+        </svg>
+        <span>EUROTEL</span>
+      </div>
+
+      <ul class="overlay__primary">
+        <li><a href="#rooms">Rooms &amp; Suites</a></li>
+        <li><a href="#hotel">The Hotel</a></li>
+        <li><a href="#experiences">Experiences</a></li>
+        <li><a href="#dining">Dining</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#offers">Offers &amp; Escapes</a></li>
+      </ul>
+
+      <ul class="overlay__secondary">
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#contact">Contact &amp; Directions</a></li>
+        <li><a href="#press">Press</a></li>
+        <li><a href="#journal">Journal</a></li>
+      </ul>
+
+      <p class="overlay__contact">
+        Diu Town · Diu 362520, India<br />
+        stay@eurotel.in · +91 000 000 0000
+      </p>
+
+      <div class="overlay__social" aria-label="Follow us">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h2.5l.5-3H14V9.5c0-.3.2-.5.5-.5H14Z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-1.7-.2-3-.4-3.7-.2-.8-.9-1.4-1.7-1.6C18.5 6.3 12 6.3 12 6.3s-6.5 0-7.9.4c-.8.2-1.5.8-1.7 1.6C2.2 9 2 10.3 2 12s.2 3 .4 3.7c.2.8.9 1.4 1.7 1.6 1.4.4 7.9.4 7.9.4s6.5 0 7.9-.4c.8-.2 1.5-.8 1.7-1.6.2-.7.4-2 .4-3.7ZM10 15V9l5 3-5 3Z"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var toggle = document.querySelector(".menu-toggle");
+      var overlay = document.getElementById("overlay");
+      var closeBtn = document.querySelector(".overlay__close");
+
+      function openMenu() {
+        overlay.classList.add("is-open");
+        document.body.classList.add("menu-open");
+        toggle.setAttribute("aria-expanded", "true");
+        closeBtn.focus();
+      }
+      function closeMenu() {
+        overlay.classList.remove("is-open");
+        document.body.classList.remove("menu-open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.focus();
+      }
+
+      toggle.addEventListener("click", openMenu);
+      closeBtn.addEventListener("click", closeMenu);
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && overlay.classList.contains("is-open")) closeMenu();
+      });
+      overlay.querySelectorAll(".overlay__primary a, .overlay__secondary a").forEach(function (a) {
+        a.addEventListener("click", closeMenu);
+      });
+
+      // Rooms showcase — pinned; scroll SCRUBS the slide (both videos visible mid), with a hold on each full room
+      var showcase = document.querySelector(".showcase");
+      if (showcase) {
+        var panels = showcase.querySelectorAll(".rm");
+        var medias = showcase.querySelectorAll(".media");
+        var roomCount = medias.length;
+        var HOLD = 0.2; // fraction of the track each room stays fully locked
+
+        // Map track progress (0..1) to a continuous room value (0..roomCount-1),
+        // holding steady on each room, then easing through the transition.
+        function roomFromProgress(tp) {
+          var trans = roomCount - 1;
+          var holdFrac = HOLD;
+          var transFrac = trans > 0 ? (1 - roomCount * holdFrac) / trans : 0;
+          if (transFrac <= 0) { holdFrac = 0.5 / roomCount; transFrac = trans > 0 ? (1 - roomCount * holdFrac) / trans : 0; }
+          var x = 0;
+          for (var i = 0; i < roomCount; i++) {
+            if (tp <= x + holdFrac) return i;           // hold on room i
+            x += holdFrac;
+            if (i < roomCount - 1) {
+              if (tp <= x + transFrac) {                // transition i -> i+1
+                var lt = (tp - x) / transFrac;
+                lt = lt < 0 ? 0 : lt > 1 ? 1 : lt;
+                return i + (lt < 0.5 ? 2 * lt * lt : 1 - Math.pow(-2 * lt + 2, 2) / 2);
+              }
+              x += transFrac;
+            }
+          }
+          return roomCount - 1;
+        }
+
+        function renderShow() {
+          var rect = showcase.getBoundingClientRect();
+          var track = showcase.offsetHeight - window.innerHeight;
+          var tp = track > 0 ? clamp01(-rect.top / track) : 0;
+          var r = roomFromProgress(tp);
+          for (var j = 0; j < medias.length; j++) {
+            medias[j].style.transform = "translateY(" + ((j - r) * 100).toFixed(3) + "%)";
+          }
+          for (var i = 0; i < panels.length; i++) {
+            var off = i - r;
+            var inner = panels[i].querySelector(".rm__inner");
+            if (inner) {
+              inner.style.opacity = clamp01(1 - Math.abs(off) * 1.6).toFixed(3);
+              inner.style.transform = "translateY(" + (off * 46).toFixed(1) + "px)";
+            }
+            panels[i].style.pointerEvents = Math.abs(off) < 0.5 ? "auto" : "none";
+          }
+        }
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !roomCount) {
+          showcase.classList.add("showcase--static");
+        } else {
+          var rafS = false;
+          function onScrollShow() {
+            if (!rafS) { rafS = true; requestAnimationFrame(function () { rafS = false; renderShow(); }); }
+          }
+          window.addEventListener("scroll", onScrollShow, { passive: true });
+          window.addEventListener("resize", renderShow);
+          renderShow();
+        }
+      }
+
+      // Enquiry form — no live booking engine; capture dates and hand off later
+      var booking = document.querySelector(".booking");
+      if (booking) {
+        booking.addEventListener("submit", function (e) {
+          e.preventDefault();
+          // TODO: route to enquiry form / WhatsApp with the selected dates + guests
+        });
+      }
+
+      // ---- Cinematic scroll: nav condense + hero exit + pinned word reveal ----
+      var nav = document.querySelector(".nav");
+      var hero = document.querySelector(".hero");
+      var heroInner = document.querySelector(".hero__inner");
+      var heroMedia = document.querySelector(".hero__photo");
+      var revealSection = document.querySelector(".reveal");
+      var revealText = document.getElementById("revealText");
+      var revealBg = revealSection ? revealSection.querySelector(".reveal__bg") : null;
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      var wordEls = [], N = 0;
+      if (revealText) {
+        var words = revealText.textContent.trim().split(/\s+/);
+        revealText.innerHTML = words
+          .map(function (w) { return '<span class="word">' + w + "</span>"; })
+          .join(" ");
+        wordEls = revealText.querySelectorAll(".word");
+        N = wordEls.length;
+      }
+
+      function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+      function smooth(v) { return v * v * (3 - 2 * v); }
+      function navScroll() { if (nav) nav.classList.toggle("is-scrolled", (window.scrollY || window.pageYOffset) > 40); }
+
+      if (reduce) {
+        if (revealSection) revealSection.style.height = "auto";
+        wordEls.forEach(function (el) { el.style.opacity = 1; });
+        window.addEventListener("scroll", navScroll, { passive: true });
+        navScroll();
+      } else {
+        var ticking = false;
+
+        function updateHero() {
+          var h = window.innerHeight;
+          var y = window.scrollY || window.pageYOffset;
+          if (!hero) return;
+          var hp = clamp01(y / (h * 0.85));
+          var e = smooth(hp);
+          if (heroInner) {
+            heroInner.style.opacity = (1 - clamp01(hp * 1.15)).toFixed(3);
+            heroInner.style.transform = "translateY(" + (-e * 80).toFixed(1) + "px) scale(" + (1 - e * 0.07).toFixed(3) + ")";
+          }
+          if (heroMedia) {
+            heroMedia.style.transform = "scale(" + (1 + e * 0.14).toFixed(3) + ")";
+          }
+        }
+
+        function updateReveal() {
+          if (!revealSection || !N) return;
+          var rect = revealSection.getBoundingClientRect();
+          var total = revealSection.offsetHeight - window.innerHeight;
+          var scrolled = Math.min(Math.max(-rect.top, 0), total);
+          var p = total > 0 ? scrolled / total : 0;
+          var head = (Math.min(p, 0.9) / 0.9) * N;
+          for (var i = 0; i < N; i++) {
+            var b = smooth(clamp01((head - i) / 4));
+            var el = wordEls[i];
+            el.style.opacity = (0.18 + 0.82 * b).toFixed(3);
+            el.style.transform = "translateY(" + ((1 - b) * 13).toFixed(2) + "px)";
+            el.style.filter = b < 0.999 ? "blur(" + ((1 - b) * 2.2).toFixed(2) + "px)" : "none";
+          }
+          if (revealBg) revealBg.style.transform = "scale(" + (1.04 + p * 0.10).toFixed(3) + ")";
+        }
+
+        function update() {
+          ticking = false;
+          navScroll();
+          updateHero();
+          updateReveal();
+        }
+        function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", update);
+        update();
+      }
+
+      // Language toggle (visual only for now)
+      document.querySelectorAll(".lang button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          document.querySelectorAll(".lang button").forEach(function (x) { x.classList.remove("is-active"); });
+          b.classList.add("is-active");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
