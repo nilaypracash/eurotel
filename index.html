@@ -194,7 +194,7 @@
       margin-bottom: 1.9rem;
     }
 
-    .lockup__emblem { width: 66px; height: 66px; margin-bottom: 1.6rem; color: var(--whitewash); opacity: 0.95; }
+    .lockup__emblem { width: 72px; height: 72px; margin-bottom: 1.6rem; opacity: 0.95; display: block; }
 
     .lockup__name {
       font-family: var(--serif);
@@ -544,6 +544,7 @@
 
     .overlay__brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 3rem; }
     .overlay__brand svg { width: 44px; height: 44px; color: var(--brass-soft); margin-bottom: 0.9rem; }
+    .overlay__brand img { width: 48px; height: auto; margin-bottom: 1rem; }
     .overlay__brand span {
       font-family: var(--serif); font-size: 1.5rem; letter-spacing: 0.3em; margin-left: 0.3em; color: var(--brass-soft);
     }
@@ -615,7 +616,7 @@
     <div class="nav__group nav__desktop-links">
       <a class="nav__link" href="#rooms">Rooms</a>
       <a class="nav__link" href="#hotel">The Hotel</a>
-      <a class="nav__link" href="#experiences">Experiences</a>
+      <a class="nav__link" href="experiences.html">Experiences</a>
       <a class="nav__link" href="#dining">Dining</a>
       <a class="nav__link" href="#gallery">Gallery</a>
     </div>
@@ -671,15 +672,8 @@
     <div class="hero__inner">
       <p class="eyebrow lockup__place">Diu · India</p>
 
-      <!-- Armillary sphere — the Portuguese emblem -->
-      <svg class="lockup__emblem" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-        <circle cx="50" cy="50" r="34" />
-        <ellipse cx="50" cy="50" rx="34" ry="12" />
-        <ellipse cx="50" cy="50" rx="12" ry="34" />
-        <ellipse cx="50" cy="50" rx="26" ry="34" transform="rotate(32 50 50)" />
-        <line x1="50" y1="8" x2="50" y2="92" />
-        <circle cx="50" cy="50" r="4.5" fill="currentColor" stroke="none" />
-      </svg>
+      <!-- Eurotel monogram -->
+      <img class="lockup__emblem" src="media/logo-mark.svg" alt="Eurotel" width="72" height="72" />
 
       <h1 class="lockup__name">EUROTEL</h1>
       <span class="lockup__rule" aria-hidden="true"></span>
@@ -805,19 +799,14 @@
 
     <div class="overlay__inner">
       <div class="overlay__brand">
-        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-          <circle cx="50" cy="50" r="34" />
-          <ellipse cx="50" cy="50" rx="34" ry="12" />
-          <ellipse cx="50" cy="50" rx="12" ry="34" />
-          <line x1="50" y1="8" x2="50" y2="92" />
-        </svg>
+        <img src="media/logo-mark-gold.svg" alt="Eurotel" width="48" height="48" />
         <span>EUROTEL</span>
       </div>
 
       <ul class="overlay__primary">
         <li><a href="#rooms">Rooms &amp; Suites</a></li>
         <li><a href="#hotel">The Hotel</a></li>
-        <li><a href="#experiences">Experiences</a></li>
+        <li><a href="experiences.html">Experiences</a></li>
         <li><a href="#dining">Dining</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#offers">Offers &amp; Escapes</a></li>
@@ -832,7 +821,7 @@
 
       <p class="overlay__contact">
         Diu Town · Diu 362520, India<br />
-        stay@eurotel.in · +91 000 000 0000
+        reservations@eurotel.in · +91 000 000 0000
       </p>
 
       <div class="overlay__social" aria-label="Follow us">
