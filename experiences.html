@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
   <style>
     :root {
       --whitewash: #F5F0E6;
@@ -139,7 +140,7 @@
     /* ---------- Map journey stage: India -> Diu -> pins ---------- */
     .exp-stage {
       position: relative;
-      height: 460vh;               /* scroll track that drives the dive */
+      height: 520vh;               /* scroll track that drives the dive */
       background: var(--artboard);
     }
     .exp-sticky {
@@ -151,15 +152,15 @@
     }
     .exp-sticky::after {
       content: "";
-      position: absolute; inset: 0; z-index: 0;
+      position: absolute; inset: 0; z-index: 3;
       pointer-events: none;
       background: radial-gradient(115% 100% at 50% 42%, transparent 52%, rgba(16, 26, 20, 0.4) 100%);
     }
 
     /* Portolan chart furniture: rhumb lines, compass rose, sea names.
-       All on one layer so the dive can fade it as a piece. */
+       Sits over the map canvas (which is opaque) and fades with the dive. */
     .chart {
-      position: absolute; inset: 0; z-index: 0;
+      position: absolute; inset: 0; z-index: 2;
       pointer-events: none;
       will-change: opacity;
       background: repeating-conic-gradient(
@@ -189,12 +190,6 @@
     .chart__sea--1 { left: 5%; bottom: 13%; transform: rotate(-5deg); }
     .chart__sea--2 { right: 6%; bottom: 7%; transform: rotate(-3deg); }
 
-    /* Voyage route — dotted line drawn in by scroll, sailing to Diu */
-    .route {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      overflow: visible;
-    }
     .geo {
       position: absolute;
       inset: 0;
@@ -203,23 +198,39 @@
       justify-content: center;
       will-change: opacity;
     }
-    /* India sits right of centre so the title owns the green field at left */
-    .geo-india { z-index: 1; justify-content: flex-end; padding-right: clamp(1.5rem, 8vw, 8rem); }
-    .india-fit {
-      position: relative;
-      height: min(78vh, 88vw);
-      will-change: transform;
-      animation: rise-in 1.3s var(--ease) 0.35s backwards;
+    /* Map layer — the globe opens right of centre (via camera padding),
+       so the title owns the green field at left */
+    .geo-india { z-index: 1; animation: rise-in 1.3s var(--ease) 0.35s backwards; }
+    .globe-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .globe-canvas .mapboxgl-canvas { outline: none; }
+    .globe-canvas .mapboxgl-ctrl-attrib {
+      background: transparent;
+      font-size: 10px;
+      opacity: 0.5;
+      font-family: var(--sans);
     }
-    .india-fit img { height: 100%; width: auto; display: block; filter: url(#ink) drop-shadow(0 24px 60px rgba(13, 22, 16, 0.35)); }
-    /* Pulsing target on Diu while the camera dives */
+    .globe-canvas .mapboxgl-ctrl-attrib a { color: var(--whitewash-dim); }
+    .globe-canvas .mapboxgl-ctrl-logo { opacity: 0.45; }
+    /* the caravel, projected along the route */
+    .geo-ship {
+      position: absolute;
+      left: -100px; top: -100px;
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .geo-ship svg { display: block; }
+    /* Pulsing target on Diu — screen position projected from 3D each frame */
     .geo-marker {
       position: absolute;
-      left: 9.59%; top: 53.7%;      /* Diu, computed from the projection */
+      left: -100px; top: -100px;    /* JS moves it to Diu's projected point */
       width: 9px; height: 9px;
       margin: -4.5px 0 0 -4.5px;
       border-radius: 50%;
       background: var(--terracotta);
+      opacity: 0;
+      will-change: opacity;
     }
     .geo-marker::after {
       content: ""; position: absolute; inset: -7px;
@@ -249,9 +260,17 @@
       100% { transform: scale(1.8); opacity: 0; }
     }
 
-    .geo-diu { z-index: 2; opacity: 0; }
-    .diu-wrap { position: relative; width: min(92vw, 1040px); will-change: transform; }
+    .geo-diu { z-index: 2; display: none; }   /* static fallback only */
+    .diu-wrap { position: relative; width: min(92vw, 1040px); }
     .diu-wrap > img { width: 100%; height: auto; display: block; filter: url(#ink); }
+    /* Pins layer: same footprint as the island at final zoom, so the CSS
+       --x/--y percentages hold in static mode; live mode projects them */
+    .geo-pins { z-index: 2; }
+    .pins-box {
+      position: relative;
+      width: min(92vw, 1040px);
+      aspect-ratio: 861 / 473;
+    }
     .diu-ghost {
       position: absolute;
       left: 50%; bottom: 10%;
@@ -264,6 +283,9 @@
       font-size: clamp(0.7rem, 1.4vw, 0.95rem);
       color: rgba(245, 240, 230, 0.5);
       text-shadow: 0 1px 14px rgba(13, 22, 16, 0.45);
+      opacity: 0;
+      will-change: opacity;
+      z-index: 2;
     }
 
     /* Experience pins on the island */
@@ -384,11 +406,13 @@
       max-width: 14ch;
     }
 
-    /* Reduced motion: skip the dive, land on the pinned island */
+    /* Static fallback (reduced motion / no WebGL): skip the dive,
+       land on the pinned island */
     .exp-static .geo-india { display: none; }
-    .exp-static .geo-diu { opacity: 1; }
+    .exp-static .geo-diu { display: flex; opacity: 1; }
     .exp-static .diu-wrap { transform: none; }
     .exp-static .pin { opacity: 1; transform: translate(-50%, -50%); }
+    .exp-static .diu-ghost { opacity: 1; }
     .exp-static .exp-caption { display: none; }
     .exp-static .exp-caption2 { opacity: 1; }
     .exp-static .exp-hint { display: none; }
@@ -439,7 +463,7 @@
       position: relative;
       z-index: 6;
       height: clamp(120px, 18vw, 340px);   /* natural aspect of the tear scan */
-      margin-top: -52vh;                   /* how much of the map the sheet rides over */
+      margin-top: -40vh;                   /* how much of the map the sheet rides over */
       margin-bottom: -1px;
       /* wider than the screen: side edges of the scan hang off-viewport,
          bottom-anchored so the tear sits lower and the seam stays flush.
@@ -589,9 +613,7 @@
       .day-entry::before, .day-entry::after { display: none; }
       .day-entry__media { order: -1; }
       .chart__rose { display: none; }
-      /* stack the opening: title up top, map in the lower half */
-      .geo-india { justify-content: center; align-items: flex-end; padding: 0 0 9vh; }
-      .india-fit { height: min(52vh, 88vw); }
+      /* stack the opening: title up top, globe in the lower half (JS repositions it) */
       .exp-caption { justify-content: flex-start; padding-top: 7.5rem; }
       .exp-caption h1 { max-width: none; }
     }
@@ -796,55 +818,45 @@
         </div>
 
         <div class="geo geo-india" aria-hidden="true">
-          <div class="india-fit">
-            <img src="media/india.svg" alt="" />
-            <svg class="route" viewBox="0 0 1000 1016" aria-hidden="true">
-              <defs>
-                <mask id="routeMask">
-                  <path id="routeRev" d="M-260,300 C-230,430 -160,520 -60,560 C-10,578 60,565 95.9,545.6"
-                        fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"
-                        pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
-                </mask>
-              </defs>
-              <path id="routePath" d="M-260,300 C-230,430 -160,520 -60,560 C-10,578 60,565 95.9,545.6"
-                    fill="none" stroke="#C15A34" stroke-width="2.4" stroke-linecap="round"
-                    stroke-dasharray="0.15 8" opacity="0.85" mask="url(#routeMask)" />
-              <g id="ship" opacity="0" fill="#C15A34">
-                <path d="M-9,2 C-5,7 5,7 9,2 Z" />
-                <path d="M1,1 L1,-9 L8,-2 Z" />
-                <path d="M-2,1 L-2,-7 L-8,-1.5 Z" />
-              </g>
-            </svg>
-            <span class="geo-marker"><i class="geo-coord">Diu &middot; 20&deg;43' N</i></span>
+          <div id="map" class="globe-canvas"></div>
+          <span class="geo-ship" aria-hidden="true"><svg viewBox="-10 -10 20 20" width="22" height="22" fill="#C15A34"><path d="M-8,2 C-4,6 4,6 8,2 Z"/><path d="M1,1 L1,-8 L7,-1.5 Z"/><path d="M-2,1 L-2,-6 L-7,-1 Z"/></svg></span>
+          <span class="geo-marker"><i class="geo-coord">Diu &middot; 20&deg;43' N</i></span>
+        </div>
+
+        <!-- Static fallback only (reduced motion / no WebGL) — the live
+             journey stays on the globe the whole way -->
+        <div class="geo geo-diu" aria-hidden="true">
+          <div class="diu-wrap">
+            <img src="media/island.svg" alt="" />
           </div>
         </div>
 
-        <div class="geo geo-diu">
-          <div class="diu-wrap">
-            <img src="media/island.svg" alt="Map of Diu island" />
-            <div class="pin pin--hotel" style="--x: 79%; --y: 42%" data-at="0.60">
+        <!-- Pins are projected from lat/lon onto the globe each frame -->
+        <div class="geo geo-pins">
+          <div class="pins-box">
+            <div class="pin pin--hotel" style="--x: 79%; --y: 42%" data-at="0.70" data-lng="70.9869" data-lat="20.7141">
               <span class="pin__dot"></span><span class="pin__label">Eurotel</span>
               <span class="pin__sub">you are here</span>
             </div>
-            <div class="pin" style="--x: 94%; --y: 54%" data-at="0.67">
+            <div class="pin" style="--x: 94%; --y: 54%" data-at="0.74" data-lng="71.0021" data-lat="20.7126">
               <span class="pin__dot"></span><span class="pin__label">Diu Fort</span>
               <span class="pin__sub">12 min by bicycle</span>
             </div>
-            <div class="pin" style="--x: 84%; --y: 28%" data-at="0.73">
+            <div class="pin" style="--x: 84%; --y: 28%" data-at="0.78" data-lng="70.9942" data-lat="20.7162">
               <span class="pin__dot"></span><span class="pin__label">St. Paul's Church</span>
               <span class="pin__sub">6 min on foot</span>
             </div>
-            <div class="pin" style="--x: 37%; --y: 74%" data-at="0.79">
+            <div class="pin" style="--x: 37%; --y: 74%" data-at="0.82" data-lng="70.9201" data-lat="20.7051">
               <span class="pin__dot"></span><span class="pin__label">Nagoa Beach</span>
               <span class="pin__sub">18 min by bicycle</span>
             </div>
-            <div class="pin" style="--x: 6%; --y: 54%" data-at="0.85">
+            <div class="pin" style="--x: 6%; --y: 54%" data-at="0.86" data-lng="70.8432" data-lat="20.7141">
               <span class="pin__dot"></span><span class="pin__label">Vanakbara Harbour</span>
               <span class="pin__sub">25 min by scooter</span>
             </div>
           </div>
-          <span class="diu-ghost">Ilha de Diu &middot; est. 1535</span>
         </div>
+        <span class="diu-ghost">Ilha de Diu &middot; est. 1535</span>
 
         <div class="exp-caption">
           <p class="eyebrow">Eurotel · Diu</p>
@@ -999,6 +1011,8 @@
     </div>
   </div>
 
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <script src="mapbox-config.js"></script>
   <script>
     (function () {
       var toggle = document.querySelector(".menu-toggle");
@@ -1031,20 +1045,16 @@
       var nav = document.querySelector(".nav");
       function navScroll() { if (nav) nav.classList.toggle("is-scrolled", (window.scrollY || window.pageYOffset) > 40); }
 
-      // Map journey — the camera dives from the whole of India into Diu,
-      // then experience pins land around the hotel. The scrub is lerped
-      // for an inertial, weighted feel.
+      // Map journey — a 3D globe dives from the Atlantic to Diu, then the
+      // island resolves with its pins. The scrub is lerped for an
+      // inertial, weighted feel.
       var stage = document.querySelector(".exp-stage");
       var chart = document.querySelector(".chart");
-      var routeRev = document.getElementById("routeRev");
-      var routePath = document.getElementById("routePath");
-      var ship = document.getElementById("ship");
-      var routeLen = 0;
-      var india = document.querySelector(".geo-india");
-      var indiaFit = document.querySelector(".india-fit");
+      var geoGlobe = document.querySelector(".geo-india");
+      var shipEl = document.querySelector(".geo-ship");
       var marker = document.querySelector(".geo-marker");
-      var diu = document.querySelector(".geo-diu");
-      var diuWrap = document.querySelector(".diu-wrap");
+      var pinsBox = document.querySelector(".pins-box");
+      var ghost = document.querySelector(".diu-ghost");
       var caption = document.querySelector(".exp-caption");
       var caption2 = document.querySelector(".exp-caption2");
       var hint = document.querySelector(".exp-hint");
@@ -1055,7 +1065,6 @@
       function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
       function smooth(v) { return v * v * (3 - 2 * v); }
 
-      var DIU = { x: 0.0959, y: 0.537 };   // Diu on the India map (from the projection)
       var targetP = 0, curP = 0;
 
       function computeTarget() {
@@ -1065,55 +1074,190 @@
         targetP = total > 0 ? scrolled / total : 0;
       }
 
-      function applyStage(p) {
-        if (!indiaFit || !diuWrap) return;
-        // The voyage route inks itself in before the dive gathers speed
-        var rr = smooth(clamp01(p / 0.26));
-        if (routeRev) routeRev.style.strokeDashoffset = (1 - rr).toFixed(4);
-        // ... and a caravel sails the route as it draws
-        if (ship && routePath) {
-          if (!routeLen) { try { routeLen = routePath.getTotalLength(); } catch (err) { routeLen = 0; } }
-          if (routeLen) {
-            var lp = routeLen * rr;
-            var pt = routePath.getPointAtLength(lp);
-            var pt2 = routePath.getPointAtLength(Math.min(lp + 2, routeLen));
-            var ang = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI;
-            ship.setAttribute("transform", "translate(" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + ") rotate(" + ang.toFixed(1) + ")");
-            ship.style.opacity = (clamp01(rr / 0.05) * clamp01(1 - (p - 0.27) / 0.06)).toFixed(3);
+      // ---------- Mapbox globe: one continuous flight, space -> island ----------
+      // The token lives in mapbox-config.js (gitignored) — see
+      // mapbox-config.example.js. Without it the page falls back to the
+      // static pinned island.
+      var MAPBOX_TOKEN = window.MAPBOX_TOKEN || "";
+
+      var RAD = Math.PI / 180;
+      var START = { lng: -22, lat: 6 };            // opening view: the Atlantic
+      var DIU_C = { lng: 70.93, lat: 20.715 };     // final frame: the island
+
+      // the sailors' route: down the Atlantic, around the Cape, up to Diu
+      var WAY = [
+        [-9.14, 38.72],
+        [-15, 33], [-20, 20], [-24, 8],
+        [-16, -12], [0, -26], [12, -34],
+        [20, -37],
+        [32, -31], [42, -21],
+        [52, -8], [61, 4], [66, 13],
+        [70.93, 20.7]
+      ];
+      function vec(lng, lat) {
+        var la = lat * RAD, lo = lng * RAD;
+        return [Math.cos(la) * Math.cos(lo), Math.cos(la) * Math.sin(lo), Math.sin(la)];
+      }
+      var ROUTE = [];
+      (function () {
+        for (var i = 0; i < WAY.length - 1; i++) {
+          var A = vec(WAY[i][0], WAY[i][1]), B = vec(WAY[i + 1][0], WAY[i + 1][1]);
+          var dot = A[0] * B[0] + A[1] * B[1] + A[2] * B[2];
+          var om = Math.acos(Math.min(1, Math.max(-1, dot)));
+          var n = Math.max(2, Math.round(om / RAD * 2));
+          for (var k = (i === 0 ? 0 : 1); k <= n; k++) {
+            var f = k / n, sA = Math.sin((1 - f) * om) / Math.sin(om), sB = Math.sin(f * om) / Math.sin(om);
+            var v = [A[0] * sA + B[0] * sB, A[1] * sA + B[1] * sB, A[2] * sA + B[2] * sB];
+            ROUTE.push([Math.atan2(v[1], v[0]) / RAD, Math.asin(v[2] / Math.hypot(v[0], v[1], v[2])) / RAD]);
           }
         }
+      })();
+
+      function centralDeg(aLng, aLat, bLng, bLat) {
+        var A = vec(aLng, aLat), B = vec(bLng, bLat);
+        return Math.acos(Math.min(1, Math.max(-1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2]))) / RAD;
+      }
+
+      var G = null;
+      function initMap() {
+        if (!window.mapboxgl || !MAPBOX_TOKEN) return null;
+        try {
+          mapboxgl.accessToken = MAPBOX_TOKEN;
+          var map = new mapboxgl.Map({
+            container: "map",
+            // brand style: cream land, heritage-green sea, nothing else
+            style: {
+              version: 8,
+              sources: { composite: { type: "vector", url: "mapbox://mapbox.mapbox-streets-v8" } },
+              layers: [
+                { id: "land", type: "background", paint: { "background-color": "#F5F0E6" } },
+                { id: "water", type: "fill", source: "composite", "source-layer": "water",
+                  paint: { "fill-color": "#2E4636" } }
+              ]
+            },
+            projection: "globe",
+            interactive: false,
+            center: [START.lng, START.lat],
+            zoom: 1.3,
+            fadeDuration: 0
+          });
+          var g = { map: map, loaded: false, z0: 1.35, zEnd: 12.05, padL: 0, padT: 0, lastRR: -1, lastP: -1 };
+          map.on("style.load", function () {
+            map.setFog({
+              color: "rgba(245, 240, 230, 0.26)",     // horizon haze
+              "high-color": "#3A5744",
+              "space-color": "#2E4636",               // blends into the chart field
+              "horizon-blend": 0.08,
+              "star-intensity": 0
+            });
+            map.addSource("route", {
+              type: "geojson", lineMetrics: true,
+              data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: ROUTE } }
+            });
+            map.addLayer({
+              id: "route", type: "line", source: "route",
+              layout: { "line-cap": "round", "line-join": "round" },
+              paint: {
+                "line-width": 2.2,
+                "line-gradient": ["step", ["line-progress"], "#C15A34", 0.0001, "rgba(0,0,0,0)"]
+              }
+            });
+            g.loaded = true;
+          });
+          return g;
+        } catch (err) { return null; }
+      }
+
+      function sizeMap() {
+        if (!G) return;
+        var vw = window.innerWidth, vh = window.innerHeight;
+        var mobile = vw < 861;
+        G.z0 = mobile ? 0.7 : 1.35;
+        G.padL = mobile ? 0 : vw * 0.34;   // opening: globe right of centre
+        G.padT = mobile ? vh * 0.3 : 0;    // opening: globe lower on mobile
+        G.lastP = -1;
+        G.map.resize();
+      }
+
+      // pins carry real coordinates on the island
+      var pinGeo = [];
+      pins.forEach(function (el) {
+        if (el.getAttribute("data-lng")) {
+          pinGeo.push({ el: el, lng: +el.getAttribute("data-lng"), lat: +el.getAttribute("data-lat") });
+        }
+      });
+
+      function updateMap(p) {
+        if (!G || !G.loaded) return;
+        if (Math.abs(G.lastP - p) < 0.0004) return;
+        G.lastP = p;
+        var map = G.map;
+        // rotation first (Diu centred by ~34%), then one continuous zoom —
+        // the tile engine keeps every altitude sharp, orbit to island
+        var tR = smooth(clamp01(p / 0.34));
+        var tZ = smooth(clamp01((p - 0.26) / 0.42));
+        var lng = START.lng + (DIU_C.lng - START.lng) * tR;
+        var lat = START.lat + (DIU_C.lat - START.lat) * tR;
+        map.jumpTo({
+          center: [lng, lat],
+          zoom: G.z0 + (G.zEnd - G.z0) * tZ,
+          padding: { left: G.padL * (1 - tR), top: G.padT * (1 - tR), right: 0, bottom: 0 }
+        });
+        // the route inks in, then fades as the dive begins
+        var rr = smooth(clamp01(p / 0.26));
+        if (Math.abs(rr - G.lastRR) > 0.004) {
+          G.lastRR = rr;
+          map.setPaintProperty("route", "line-gradient",
+            ["step", ["line-progress"], "#C15A34", Math.max(rr, 0.0001), "rgba(0,0,0,0)"]);
+        }
+        map.setPaintProperty("route", "line-opacity", clamp01(1 - (p - 0.30) / 0.10));
+        // the caravel sails the route as it draws
+        if (shipEl) {
+          var si = Math.min(Math.floor((ROUTE.length - 1) * rr), ROUTE.length - 2);
+          var s0 = map.project(ROUTE[si]), s1 = map.project(ROUTE[si + 1]);
+          var ang = Math.atan2(s1.y - s0.y, s1.x - s0.x) / RAD;
+          shipEl.style.left = s0.x.toFixed(1) + "px";
+          shipEl.style.top = s0.y.toFixed(1) + "px";
+          shipEl.style.transform = "translate(-50%,-50%) rotate(" + ang.toFixed(1) + "deg)";
+          shipEl.style.opacity = (rr > 0.01 ? clamp01(1 - (p - 0.30) / 0.06) : 0).toFixed(3);
+        }
+        // Diu target marker, projected each frame (hidden on the far side)
+        if (marker) {
+          var mp = map.project([70.98, 20.71]);
+          marker.style.left = mp.x.toFixed(1) + "px";
+          marker.style.top = mp.y.toFixed(1) + "px";
+          var facing = centralDeg(lng, lat, 70.98, 20.71) < 78;
+          marker.style.opacity = (facing ? clamp01(1 - (p - 0.58) / 0.06) : 0).toFixed(3);
+        }
+        // pins glued to their real coordinates
+        if (pinsBox && pinGeo.length) {
+          var br = pinsBox.getBoundingClientRect();
+          for (var i = 0; i < pinGeo.length; i++) {
+            var pt = map.project([pinGeo[i].lng, pinGeo[i].lat]);
+            pinGeo[i].el.style.left = (pt.x - br.left).toFixed(1) + "px";
+            pinGeo[i].el.style.top = (pt.y - br.top).toFixed(1) + "px";
+          }
+        }
+      }
+
+      function applyStage(p) {
+        if (!stage) return;
         // Chart furniture (rhumbs, rose, sea names) sinks away with the dive
-        if (chart) chart.style.opacity = clamp01(1 - (p - 0.30) / 0.14).toFixed(3);
-        // Phase A (0 -> ~0.5): dive toward Diu. Exponential scale reads as a
-        // constant-speed zoom; Diu's point is pulled to the viewport centre.
-        var t1 = smooth(clamp01(p / 0.52));
-        var z1 = Math.exp(Math.log(22) * t1);
-        var w = indiaFit.offsetWidth, h = indiaFit.offsetHeight;
-        // pull Diu's point from its laid-out position to the viewport centre
-        var dx = (window.innerWidth / 2 - (indiaFit.offsetLeft + DIU.x * w)) * t1;
-        var dy = (window.innerHeight / 2 - (indiaFit.offsetTop + DIU.y * h)) * t1;
-        indiaFit.style.transformOrigin = (DIU.x * 100) + "% " + (DIU.y * 100) + "%";
-        indiaFit.style.transform = "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px) scale(" + z1.toFixed(3) + ")";
-        india.style.opacity = clamp01(1 - (p - 0.40) / 0.10).toFixed(3);
-        if (marker) marker.style.opacity = clamp01(1 - (p - 0.22) / 0.10).toFixed(3);
+        if (chart) chart.style.opacity = clamp01(1 - (p - 0.34) / 0.14).toFixed(3);
+        var t1 = smooth(clamp01(p / 0.30));
 
-        // Phase B (~0.28 -> 0.64): Diu resolves out of the dive
-        var t2 = smooth(clamp01((p - 0.28) / 0.36));
-        var z2 = 0.16 * Math.exp(Math.log(1 / 0.16) * t2);
-        diuWrap.style.transform = "scale(" + z2.toFixed(3) + ")";
-        diu.style.opacity = clamp01((p - 0.34) / 0.12).toFixed(3);
-
-        // Phase C (0.6 ->): pins land, one by one
+        // Pins land one by one on the zoomed-in globe itself
         for (var i = 0; i < pins.length; i++) {
           pins[i].classList.toggle("is-on", p > +pins[i].getAttribute("data-at"));
         }
+        if (ghost) ghost.style.opacity = clamp01((p - 0.68) / 0.10).toFixed(3);
 
         if (caption) {
           caption.style.opacity = clamp01(1 - p * 3.2).toFixed(3);
           caption.style.transform = "scale(" + (1 + t1 * 0.4).toFixed(3) + ")";
         }
         if (caption2) {
-          var c2 = clamp01((p - 0.64) / 0.12);
+          var c2 = clamp01((p - 0.74) / 0.10);
           caption2.style.opacity = c2.toFixed(3);
           caption2.style.transform = "translateY(" + ((1 - c2) * 26).toFixed(1) + "px)";
         }
@@ -1131,22 +1275,64 @@
         }
       }
 
+      var staticMode = false;
       function tick() {
         curP += (targetP - curP) * 0.09;
         if (Math.abs(targetP - curP) < 0.0005) curP = targetP;
-        applyStage(curP);
+        if (!staticMode) {
+          applyStage(curP);
+          if (G && stage && stage.getBoundingClientRect().bottom > 0) {
+            updateMap(curP);
+          }
+        }
         parallaxCards();
         requestAnimationFrame(tick);
       }
 
-      if (reduce) {
-        // skip the dive: land directly on the pinned island
+      function goStatic() {
+        // no dive available: land directly on the pinned island
+        staticMode = true;
         if (stage) { stage.style.height = "100svh"; stage.classList.add("exp-static"); }
+      }
+
+      // Per-browser daily cap on Mapbox loads. A real visitor boots the map
+      // once; this stops a single client from running up your quota by
+      // reloading. Once tripped (or if storage is unavailable and abused),
+      // the page serves the static island instead. Pairs with a
+      // URL-restricted token, which blocks off-domain use entirely.
+      var MAP_LOAD_CAP = 40;
+      function mapLoadState() {
+        try {
+          var today = new Date().toISOString().slice(0, 10);
+          var o = JSON.parse(localStorage.getItem("eurotel_map_loads") || "null");
+          if (!o || o.d !== today) o = { d: today, n: 0 };
+          return o;
+        } catch (e) { return null; }        // storage blocked -> no local cap
+      }
+      function mapLoadWithinCap() {
+        var o = mapLoadState();
+        return !o || o.n < MAP_LOAD_CAP;
+      }
+      function recordMapLoad() {
+        var o = mapLoadState();
+        if (!o) return;
+        try { o.n += 1; localStorage.setItem("eurotel_map_loads", JSON.stringify(o)); } catch (e) {}
+      }
+
+      if (reduce) {
+        goStatic();
       } else {
-        window.addEventListener("scroll", computeTarget, { passive: true });
-        window.addEventListener("resize", function () { computeTarget(); });
-        computeTarget();
-        requestAnimationFrame(tick);
+        if (mapLoadWithinCap()) G = initMap();     // only creates a map if a token is present
+        if (G) {
+          recordMapLoad();                          // count this billable load
+          sizeMap();
+          window.addEventListener("scroll", computeTarget, { passive: true });
+          window.addEventListener("resize", function () { computeTarget(); sizeMap(); });
+          computeTarget();
+          requestAnimationFrame(tick);
+        } else {
+          goStatic();                               // no token / no WebGL / cap reached
+        }
       }
       window.addEventListener("scroll", navScroll, { passive: true });
       navScroll();
