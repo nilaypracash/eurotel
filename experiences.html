@@ -140,7 +140,7 @@
     /* ---------- Map journey stage: India -> Diu -> pins ---------- */
     .exp-stage {
       position: relative;
-      height: 420vh;               /* scroll track that drives the dive */
+      height: 300vh;               /* scroll track that drives the dive */
       background: var(--artboard);
     }
     .exp-sticky {
@@ -329,7 +329,8 @@
       opacity: 0;
       transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
     }
-    .pin:hover .pin__sub { opacity: 1; transform: translate(-50%, 0); }
+    .pin.is-on:hover .pin__sub,
+    .pin.is-on.is-active .pin__sub { opacity: 1; transform: translate(-50%, 0); }
     .pin__dot {
       width: 11px; height: 11px;
       border-radius: 50%;
@@ -344,7 +345,9 @@
       border: 1px solid rgba(46, 70, 54, 0.2);
       border-radius: 100px;
       padding: 0.38em 0.95em;
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
     }
+    .pin.is-on:hover, .pin.is-on.is-active { z-index: 5; }
     .pin--hotel .pin__dot {
       width: 14px; height: 14px;
       background: var(--terracotta);
@@ -354,6 +357,15 @@
       background: var(--green);
       border-color: var(--green);
       color: var(--brass-soft);
+    }
+    /* Mobile only — pins cluster on a narrow screen, so keep the island calm:
+       dots only, the hotel as anchor, names revealed on tap/hover. */
+    @media (max-width: 860px) {
+      .pin__label { opacity: 0; transform: translateY(-5px); }
+      .pin.is-on:hover .pin__label,
+      .pin.is-on.is-active .pin__label { opacity: 1; transform: none; }
+      .pin--hotel { flex-direction: column-reverse; }
+      .pin--hotel.is-on .pin__label { opacity: 1; transform: none; }
     }
     .exp-caption {
       position: absolute;
@@ -549,18 +561,15 @@
       background-position: center;
       will-change: transform;
     }
-    .plx--0640 { background-image: linear-gradient(160deg, #93A8A2, #4F6A62); }
-    .plx--0900 { background-image: linear-gradient(160deg, #6E93A0, #2F5560); }
-    .plx--1130 { background-image: linear-gradient(160deg, #3E5C48, #1F3227); }
-    .plx--1330 { background-image: linear-gradient(160deg, #A98F5E, #6E5433); }
-    .plx--1630 { background-image: linear-gradient(160deg, #C08A5C, #7A4E30); }
-    .plx--1912 { background-image: linear-gradient(160deg, #B0603C, #4A2C1E); }
-    .day-entry__ph {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--serif); font-style: italic; font-size: 0.95rem;
-      color: rgba(245, 240, 230, 0.8);
-    }
+    /* Real Diu photography (Wikimedia Commons, CC BY-SA — see footer credit).
+       A faint green wash keeps the images consistent with the palette. */
+    .plx--0640 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-nagoa.jpg"); }
+    .plx--0900 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-harbour.jpg"); }
+    .plx--1130 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-fort.jpg"); }
+    .plx--1330 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-lunch.jpg"); }
+    .plx--1630 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-church.jpg"); }
+    .plx--1912 { background-image: linear-gradient(rgba(31,50,39,0.12), rgba(31,50,39,0.12)), url("media/day-sunset.jpg"); }
+    .day-entry__ph { display: none; }   /* real photos now — placeholder label off */
 
     /* ---------- CTA ---------- */
     .cta {
@@ -643,6 +652,13 @@
       letter-spacing: 0.24em;
       text-transform: uppercase;
       opacity: 0.45;
+    }
+    .foot__credit {
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      line-height: 1.6;
+      opacity: 0.4;
+      max-width: 62ch;
     }
 
     /* ---------- Full-screen menu overlay ---------- */
@@ -740,9 +756,25 @@
       html { scroll-behavior: auto; }
       .overlay__primary a { transition: color 0.2s, opacity 0.2s; transform: none; }
     }
+    /* ---------- Page transition wipe ---------- */
+    .page-wipe {
+      position: fixed; inset: 0; z-index: 95;
+      background: var(--green-deep);
+      transform: translateX(100%);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .page-wipe.is-cover { animation: wipe-cover 0.42s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+    html.wipe-enter .page-wipe { animation: wipe-reveal 0.55s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+    @keyframes wipe-cover { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    @keyframes wipe-reveal { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+    @media (prefers-reduced-motion: reduce) { .page-wipe { display: none; } }
   </style>
+  <script>try{if(sessionStorage.getItem("wipe")){document.documentElement.classList.add("wipe-enter");sessionStorage.removeItem("wipe");}}catch(e){}</script>
 </head>
 <body>
+
+  <div class="page-wipe" aria-hidden="true"></div>
 
   <!-- Azulejo pattern definition (used by the menu overlay) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -944,6 +976,7 @@
     </nav>
     <p class="foot__addr">Diu Town &middot; Diu 362520, India<br />reservations@eurotel.in &middot; +91 000 000 0000</p>
     <p class="foot__fine">Eurotel &middot; A Portuguese Heritage Hotel &middot; 20&deg;43' N, 70&deg;59' E</p>
+    <p class="foot__credit">&ldquo;One day on the island&rdquo; photography by SMarndi, JediPro, Mohmadsoyab Qureshi, Sarasrewa &amp; Dublinsantosh via Wikimedia Commons (CC BY-SA). Placeholder imagery &mdash; replace with your own Diu photography before launch.</p>
   </footer>
 
   <!-- ============ MENU OVERLAY ============ -->
@@ -995,6 +1028,34 @@
   <script src="mapbox-config.js"></script>
   <script>
     (function () {
+      // ---------- Page-to-page wipe transition ----------
+      (function () {
+        var wipe = document.querySelector(".page-wipe");
+        if (!wipe) return;
+        if (document.documentElement.classList.contains("wipe-enter")) {
+          wipe.addEventListener("animationend", function () {
+            document.documentElement.classList.remove("wipe-enter");
+          }, { once: true });
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        document.addEventListener("click", function (e) {
+          var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+          if (!a || a.target === "_blank") return;
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          var url;
+          try { url = new URL(a.href, location.href); } catch (_) { return; }
+          if (url.origin !== location.origin) return;          // external link
+          if (!/\.html$/.test(url.pathname)) return;           // only our pages
+          if (url.pathname === location.pathname) return;      // same page / in-page anchor
+          e.preventDefault();
+          try { sessionStorage.setItem("wipe", "1"); } catch (_) {}
+          wipe.classList.add("is-cover");
+          var go = function () { window.location.href = a.href; };
+          wipe.addEventListener("animationend", go, { once: true });
+          setTimeout(go, 650);
+        });
+      })();
+
       var toggle = document.querySelector(".menu-toggle");
       var overlay = document.getElementById("overlay");
       var closeBtn = document.querySelector(".overlay__close");
@@ -1179,6 +1240,12 @@
         G.z0 = mobile ? 0.7 : 1.35;
         G.padL = mobile ? 0 : vw * 0.34;   // opening: globe right of centre
         G.padT = mobile ? vh * 0.3 : 0;    // opening: globe lower on mobile
+        // final zoom must fit the island's full pin span (~0.16° E–W) across the
+        // viewport width — plus margin for the centred labels — or a narrow
+        // phone crops most of the pins (and their labels) off-screen
+        var lngSpan = 0.24;
+        var zFit = Math.log(vw * 360 / (512 * lngSpan)) / Math.LN2;
+        G.zEnd = mobile ? Math.min(11.3, zFit) : 12.05;
         G.lastP = -1;
         G.map.resize();
       }
@@ -1189,6 +1256,12 @@
         if (el.getAttribute("data-lng")) {
           pinGeo.push({ el: el, lng: +el.getAttribute("data-lng"), lat: +el.getAttribute("data-lat") });
         }
+        // tap to reveal a name on touch (no hover); one open at a time
+        el.addEventListener("click", function () {
+          var was = el.classList.contains("is-active");
+          pins.forEach(function (q) { q.classList.remove("is-active"); });
+          if (!was) el.classList.add("is-active");
+        });
       });
 
       function updateMap(p) {
@@ -1288,7 +1361,7 @@
 
       var staticMode = false;
       function tick() {
-        curP += (targetP - curP) * 0.09;
+        curP += (targetP - curP) * 0.12;
         if (Math.abs(targetP - curP) < 0.0005) curP = targetP;
         if (!staticMode) {
           applyStage(curP);
@@ -1330,19 +1403,35 @@
         try { o.n += 1; localStorage.setItem("eurotel_map_loads", JSON.stringify(o)); } catch (e) {}
       }
 
+      // Local dev (file://, localhost) bypasses the cap so reloading while you
+      // build never trips the fallback; the cap only guards the live domain.
+      var isLocalDev = location.protocol === "file:" || !location.hostname ||
+        location.hostname === "localhost" || location.hostname === "127.0.0.1";
+
       if (reduce) {
+        console.info("[map] reduced-motion is on — showing the static island.");
+        goStatic();
+      } else if (!window.mapboxgl) {
+        console.warn("[map] Mapbox GL JS did not load (CDN blocked / offline?) — static island.");
+        goStatic();
+      } else if (!MAPBOX_TOKEN) {
+        console.warn("[map] No MAPBOX_TOKEN — check that mapbox-config.js is present and loaded — static island.");
+        goStatic();
+      } else if (!isLocalDev && !mapLoadWithinCap()) {
+        console.warn("[map] Daily map-load cap reached in this browser — static island. Reset with: localStorage.removeItem('eurotel_map_loads')");
         goStatic();
       } else {
-        if (mapLoadWithinCap()) G = initMap();     // only creates a map if a token is present
+        G = initMap();
         if (G) {
-          recordMapLoad();                          // count this billable load
+          if (!isLocalDev) recordMapLoad();         // only count billable loads on the live site
           sizeMap();
           window.addEventListener("scroll", computeTarget, { passive: true });
           window.addEventListener("resize", function () { computeTarget(); sizeMap(); });
           computeTarget();
           requestAnimationFrame(tick);
         } else {
-          goStatic();                               // no token / no WebGL / cap reached
+          console.warn("[map] initMap failed (WebGL unavailable / init error) — static island.");
+          goStatic();
         }
       }
       window.addEventListener("scroll", navScroll, { passive: true });

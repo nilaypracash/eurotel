@@ -387,9 +387,25 @@
       .reveal-up { opacity: 1; transform: none; }
       .overlay__primary a { transition: color 0.2s, opacity 0.2s; transform: none; }
     }
+    /* ---------- Page transition wipe ---------- */
+    .page-wipe {
+      position: fixed; inset: 0; z-index: 95;
+      background: var(--green-deep);
+      transform: translateX(100%);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .page-wipe.is-cover { animation: wipe-cover 0.42s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+    html.wipe-enter .page-wipe { animation: wipe-reveal 0.55s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+    @keyframes wipe-cover { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    @keyframes wipe-reveal { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+    @media (prefers-reduced-motion: reduce) { .page-wipe { display: none; } }
   </style>
+  <script>try{if(sessionStorage.getItem("wipe")){document.documentElement.classList.add("wipe-enter");sessionStorage.removeItem("wipe");}}catch(e){}</script>
 </head>
 <body>
+
+  <div class="page-wipe" aria-hidden="true"></div>
 
   <!-- Azulejo pattern definition (used by the menu overlay + hero) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -561,6 +577,34 @@
 
   <script>
     (function () {
+      // ---------- Page-to-page wipe transition ----------
+      (function () {
+        var wipe = document.querySelector(".page-wipe");
+        if (!wipe) return;
+        if (document.documentElement.classList.contains("wipe-enter")) {
+          wipe.addEventListener("animationend", function () {
+            document.documentElement.classList.remove("wipe-enter");
+          }, { once: true });
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        document.addEventListener("click", function (e) {
+          var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+          if (!a || a.target === "_blank") return;
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          var url;
+          try { url = new URL(a.href, location.href); } catch (_) { return; }
+          if (url.origin !== location.origin) return;          // external link
+          if (!/\.html$/.test(url.pathname)) return;           // only our pages
+          if (url.pathname === location.pathname) return;      // same page / in-page anchor
+          e.preventDefault();
+          try { sessionStorage.setItem("wipe", "1"); } catch (_) {}
+          wipe.classList.add("is-cover");
+          var go = function () { window.location.href = a.href; };
+          wipe.addEventListener("animationend", go, { once: true });
+          setTimeout(go, 650);
+        });
+      })();
+
       var toggle = document.querySelector(".menu-toggle");
       var overlay = document.getElementById("overlay");
       var closeBtn = document.querySelector(".overlay__close");
