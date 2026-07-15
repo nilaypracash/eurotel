@@ -292,6 +292,120 @@
     }
     .booking__submit:hover { background: var(--green-hover); }
 
+    /* ---------- Enquiry dialog (terms acceptance + WhatsApp / email hand-off) ---------- */
+    .enquire {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s var(--ease), visibility 0.4s var(--ease);
+    }
+    .enquire.is-open { opacity: 1; visibility: visible; }
+    .enquire__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 26, 20, 0.66);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .enquire__card {
+      position: relative;
+      z-index: 1;
+      width: min(520px, 100%);
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+      background: var(--whitewash);
+      color: var(--charcoal);
+      padding: clamp(2rem, 5vw, 3rem);
+      box-shadow: 0 30px 80px rgba(13, 22, 16, 0.45);
+      transform: translateY(24px);
+      transition: transform 0.45s var(--ease);
+    }
+    .enquire.is-open .enquire__card { transform: translateY(0); }
+    .enquire__close {
+      position: absolute;
+      top: 1.1rem; right: 1.1rem;
+      background: none; border: none; cursor: pointer;
+      color: var(--charcoal);
+      opacity: 0.6;
+      transition: opacity 0.3s var(--ease);
+    }
+    .enquire__close:hover { opacity: 1; }
+    .enquire__close svg { width: 18px; height: 18px; display: block; }
+    .enquire__eyebrow { color: var(--brass); margin-bottom: 1.1rem; }
+    .enquire__title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(1.5rem, 3.6vw, 1.9rem);
+      line-height: 1.15;
+      margin-bottom: 0.9rem;
+    }
+    .enquire__summary {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(42, 38, 34, 0.75);
+      padding-bottom: 1.3rem;
+      margin-bottom: 1.3rem;
+      border-bottom: 1px solid rgba(42, 38, 34, 0.12);
+    }
+    .enquire__consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      cursor: pointer;
+      font-weight: 300;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: rgba(42, 38, 34, 0.85);
+    }
+    .enquire__consent input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .enquire__box {
+      flex: 0 0 auto;
+      width: 17px; height: 17px;
+      margin-top: 0.18em;
+      border: 1px solid rgba(42, 38, 34, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+    .enquire__box svg { width: 11px; height: 11px; opacity: 0; transition: opacity 0.2s var(--ease); }
+    .enquire__consent input:checked + .enquire__box { background: var(--green); border-color: var(--green); }
+    .enquire__consent input:checked + .enquire__box svg { opacity: 1; }
+    .enquire__consent input:focus-visible + .enquire__box { outline: 2px solid var(--brass); outline-offset: 2px; }
+    .enquire__consent a { color: var(--green); border-bottom: 1px solid rgba(46, 70, 54, 0.35); }
+    .enquire__consent a:hover { border-color: var(--green); }
+    .enquire.needs-consent .enquire__consent { color: var(--terracotta); }
+    .enquire.needs-consent .enquire__box { border-color: var(--terracotta); }
+    .enquire__actions { display: flex; gap: 0.9rem; margin-top: 1.7rem; flex-wrap: wrap; }
+    .enquire__actions .btn-solid,
+    .enquire__actions .btn-ghost { flex: 1 1 auto; text-align: center; }
+    .enquire__actions .is-locked {
+      opacity: 0.38;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .enquire__alt {
+      margin-top: 1.4rem;
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: rgba(42, 38, 34, 0.6);
+      text-align: center;
+    }
+    .enquire__alt a { color: var(--green); border-bottom: 1px solid rgba(46, 70, 54, 0.3); }
+
     .btn {
       font-family: var(--sans);
       font-size: 0.78rem;
@@ -747,8 +861,8 @@
           <p class="rm__desc">A suite set above the old fort walls, with a private balcony that opens straight onto the water.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
-            <a class="btn-ghost" href="#contact">Enquire</a>
-            <a class="btn-solid" href="#contact">Book</a>
+            <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
+            <a class="btn-solid" href="#enquire" data-enquire>Book</a>
           </div>
         </div>
       </article>
@@ -760,8 +874,8 @@
           <p class="rm__desc">A calm room wrapped around the blue tiled courtyard, shaded and cool through the long afternoon.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
-            <a class="btn-ghost" href="#contact">Enquire</a>
-            <a class="btn-solid" href="#contact">Book</a>
+            <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
+            <a class="btn-solid" href="#enquire" data-enquire>Book</a>
           </div>
         </div>
       </article>
@@ -773,8 +887,8 @@
           <p class="rm__desc">A private villa opening to the central garden, with a wooden veranda and cool stone floors underfoot.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
-            <a class="btn-ghost" href="#contact">Enquire</a>
-            <a class="btn-solid" href="#contact">Book</a>
+            <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
+            <a class="btn-solid" href="#enquire" data-enquire>Book</a>
           </div>
         </div>
       </article>
@@ -829,8 +943,8 @@
       <ul class="overlay__secondary">
         <li><a href="#about">Our Story</a></li>
         <li><a href="#contact">Contact &amp; Directions</a></li>
-        <li><a href="#press">Press</a></li>
-        <li><a href="#journal">Journal</a></li>
+        <li><a href="terms.html">Terms &amp; Conditions</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
       </ul>
 
       <p class="overlay__contact">
@@ -843,6 +957,35 @@
         <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h2.5l.5-3H14V9.5c0-.3.2-.5.5-.5H14Z"/></svg></a>
         <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-1.7-.2-3-.4-3.7-.2-.8-.9-1.4-1.7-1.6C18.5 6.3 12 6.3 12 6.3s-6.5 0-7.9.4c-.8.2-1.5.8-1.7 1.6C2.2 9 2 10.3 2 12s.2 3 .4 3.7c.2.8.9 1.4 1.7 1.6 1.4.4 7.9.4 7.9.4s6.5 0 7.9-.4c.8-.2 1.5-.8 1.7-1.6.2-.7.4-2 .4-3.7ZM10 15V9l5 3-5 3Z"/></svg></a>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ ENQUIRY DIALOG (terms acceptance before hand-off) ============ -->
+  <div class="enquire" id="enquire" role="dialog" aria-modal="true" aria-label="Send a booking enquiry">
+    <div class="enquire__backdrop" data-enquire-close></div>
+    <div class="enquire__card">
+      <button class="enquire__close" type="button" aria-label="Close" data-enquire-close>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+
+      <p class="eyebrow enquire__eyebrow">Booking Enquiry</p>
+      <h3 class="enquire__title">We confirm every stay personally</h3>
+      <p class="enquire__summary" id="enquireSummary">Send us your dates and we'll reply with availability and a quote.</p>
+
+      <label class="enquire__consent">
+        <input type="checkbox" id="acceptTerms" />
+        <span class="enquire__box" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F5F0E6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </span>
+        <span>I have read and accept the <a href="terms.html" target="_blank" rel="noopener">Terms &amp; Conditions</a> of Eurotel.</span>
+      </label>
+
+      <div class="enquire__actions">
+        <a class="btn-solid is-locked" id="enquireWhatsApp" href="#" target="_blank" rel="noopener" aria-disabled="true">WhatsApp</a>
+        <a class="btn-ghost is-locked" id="enquireEmail" href="#" aria-disabled="true">Email</a>
+      </div>
+
+      <p class="enquire__alt">or call us directly at <a href="tel:+910000000000">+91&nbsp;000&nbsp;000&nbsp;0000</a></p>
     </div>
   </div>
 
@@ -965,14 +1108,112 @@
         }
       }
 
-      // Enquiry form — no live booking engine; capture dates and hand off later
+      // Enquiry dialog — no live booking engine; guests accept the T&C here,
+      // then hand off to WhatsApp / email with the acceptance line in the message.
+      var CONTACT = {
+        whatsapp: "910000000000",              // TODO: real number — country code + number, digits only
+        email: "reservations@eurotel.in",      // TODO: confirm reservations inbox
+        subject: "Booking enquiry — Eurotel, Diu"
+      };
+
+      var enquire = document.getElementById("enquire");
+      var accept = document.getElementById("acceptTerms");
+      var waLink = document.getElementById("enquireWhatsApp");
+      var mailLink = document.getElementById("enquireEmail");
+      var summary = document.getElementById("enquireSummary");
       var booking = document.querySelector(".booking");
+      var lastTrigger = null;
+
+      function fmtDate(v) {
+        if (!v) return "";
+        var d = new Date(v + "T00:00:00");
+        if (isNaN(d)) return v;
+        return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      }
+
+      function buildMessage() {
+        var ci = fmtDate(document.getElementById("checkin").value);
+        var co = fmtDate(document.getElementById("checkout").value);
+        var g = document.getElementById("guests").value;
+        var lines = ["Hello Eurotel, I would like to enquire about a stay."];
+        if (ci) lines.push("Check-in: " + ci);
+        if (co) lines.push("Check-out: " + co);
+        if (g) lines.push("Guests: " + g);
+        lines.push("I have read and accept the Terms & Conditions published on your website.");
+        return lines.join("\n");
+      }
+
+      function refreshEnquire() {
+        var ci = fmtDate(document.getElementById("checkin").value);
+        var co = fmtDate(document.getElementById("checkout").value);
+        var g = document.getElementById("guests").value;
+        if (ci || co || g) {
+          summary.textContent = (ci || "Any date") + " — " + (co || "any date") + (g ? " · " + g : "");
+        } else {
+          summary.textContent = "Send us your dates and we'll reply with availability and a quote.";
+        }
+        var msg = buildMessage();
+        waLink.href = "https://wa.me/" + CONTACT.whatsapp + "?text=" + encodeURIComponent(msg);
+        mailLink.href = "mailto:" + CONTACT.email + "?subject=" + encodeURIComponent(CONTACT.subject) + "&body=" + encodeURIComponent(msg);
+      }
+
+      function syncConsent() {
+        var ok = accept.checked;
+        waLink.classList.toggle("is-locked", !ok);
+        mailLink.classList.toggle("is-locked", !ok);
+        waLink.setAttribute("aria-disabled", String(!ok));
+        mailLink.setAttribute("aria-disabled", String(!ok));
+        if (ok) enquire.classList.remove("needs-consent");
+      }
+
+      function openEnquire(trigger) {
+        lastTrigger = trigger || null;
+        refreshEnquire();
+        syncConsent();
+        enquire.classList.add("is-open");
+        document.body.classList.add("menu-open");
+        accept.focus();
+      }
+      function closeEnquire() {
+        enquire.classList.remove("is-open");
+        enquire.classList.remove("needs-consent");
+        document.body.classList.remove("menu-open");
+        if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
+      }
+
       if (booking) {
         booking.addEventListener("submit", function (e) {
           e.preventDefault();
-          // TODO: route to enquiry form / WhatsApp with the selected dates + guests
+          openEnquire(booking.querySelector(".booking__submit"));
         });
       }
+      document.querySelectorAll("[data-enquire]").forEach(function (el) {
+        el.addEventListener("click", function (e) {
+          e.preventDefault();
+          openEnquire(el);
+        });
+      });
+      enquire.querySelectorAll("[data-enquire-close]").forEach(function (el) {
+        el.addEventListener("click", closeEnquire);
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && enquire.classList.contains("is-open")) closeEnquire();
+      });
+
+      accept.addEventListener("change", syncConsent);
+
+      // Locked hand-off buttons nudge toward the checkbox instead of navigating
+      [waLink, mailLink].forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          if (link.classList.contains("is-locked")) {
+            e.preventDefault();
+            enquire.classList.add("needs-consent");
+            accept.focus();
+          } else {
+            closeEnquire();
+          }
+        });
+      });
 
       // ---- Cinematic scroll: nav condense + hero exit + pinned word reveal ----
       var nav = document.querySelector(".nav");
@@ -1027,9 +1268,12 @@
           var total = revealSection.offsetHeight - window.innerHeight;
           var scrolled = Math.min(Math.max(-rect.top, 0), total);
           var p = total > 0 ? scrolled / total : 0;
-          var head = (Math.min(p, 0.9) / 0.9) * N;
+          // ramp width (words) each word eases in over; head must travel this far
+          // PAST the last word so the final words fully light before the section leaves
+          var RAMP = 4;
+          var head = (Math.min(p, 0.9) / 0.9) * (N + RAMP);
           for (var i = 0; i < N; i++) {
-            var b = smooth(clamp01((head - i) / 4));
+            var b = smooth(clamp01((head - i) / RAMP));
             var el = wordEls[i];
             el.style.opacity = (0.18 + 0.82 * b).toFixed(3);
             el.style.transform = "translateY(" + ((1 - b) * 13).toFixed(2) + "px)";
