@@ -1,0 +1,9 @@
+{
+  "name": "eurotel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Marketing website for Eurotel — a Portuguese-heritage hotel in Diu, India.",
+  "scripts": {
+    "build": "node build.js"
+  }
+}
