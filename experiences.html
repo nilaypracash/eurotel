@@ -609,16 +609,25 @@
 
     /* ---------- Footer ---------- */
     .foot {
-      padding: clamp(3rem, 7vh, 4.5rem) clamp(1.4rem, 4vw, 3.6rem) 2.4rem;
+      padding: clamp(2rem, 4.5vh, 2.8rem) clamp(1.4rem, 4vw, 3.6rem) 1.6rem;
       background: var(--green-deep);
       color: var(--whitewash-dim);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1rem;
     }
     .foot__mark { width: 34px; height: auto; opacity: 0.9; }
+    .foot__slogan {
+      margin-top: -0.4rem;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.02rem;
+      letter-spacing: 0.05em;
+      color: var(--brass-soft);
+    }
     .foot__links {
       display: flex; flex-wrap: wrap; justify-content: center;
       gap: 1.2rem 2rem;
@@ -691,6 +700,16 @@
     .overlay__brand img { width: 48px; height: auto; margin-bottom: 1rem; }
     .overlay__brand span {
       font-family: var(--serif); font-size: 1.5rem; letter-spacing: 0.3em; margin-left: 0.3em; color: var(--brass-soft);
+    }
+    .overlay__brand small {
+      display: block;
+      margin-top: 0.55rem;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      color: var(--whitewash-dim);
     }
 
     .overlay__primary { list-style: none; margin-bottom: 2.6rem; }
@@ -956,6 +975,7 @@
 
   <footer class="foot">
     <img class="foot__mark" src="media/logo-mark-gold.svg" alt="Eurotel" width="34" height="34" />
+    <p class="foot__slogan">Where the sea begins</p>
     <nav class="foot__links" aria-label="Footer">
       <a href="index.html#rooms">Rooms</a>
       <a href="index.html#hero">The Hotel</a>
@@ -983,6 +1003,7 @@
       <div class="overlay__brand">
         <img src="media/logo-mark-gold.svg" alt="Eurotel" width="48" height="48" />
         <span>EUROTEL</span>
+        <small>Where the sea begins</small>
       </div>
 
       <ul class="overlay__primary">

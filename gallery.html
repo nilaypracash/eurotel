@@ -257,16 +257,25 @@
 
     /* ---------- Footer ---------- */
     .foot {
-      padding: clamp(3rem, 7vh, 4.5rem) clamp(1.4rem, 4vw, 3.6rem) 2.4rem;
+      padding: clamp(2rem, 4.5vh, 2.8rem) clamp(1.4rem, 4vw, 3.6rem) 1.6rem;
       background: var(--green-deep);
       color: var(--whitewash-dim);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1rem;
     }
     .foot__mark { width: 34px; height: auto; opacity: 0.9; }
+    .foot__slogan {
+      margin-top: -0.4rem;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.02rem;
+      letter-spacing: 0.05em;
+      color: var(--brass-soft);
+    }
     .foot__links {
       display: flex; flex-wrap: wrap; justify-content: center;
       gap: 1.2rem 2rem;
@@ -332,6 +341,16 @@
     .overlay__brand img { width: 48px; height: auto; margin-bottom: 1rem; }
     .overlay__brand span {
       font-family: var(--serif); font-size: 1.5rem; letter-spacing: 0.3em; margin-left: 0.3em; color: var(--brass-soft);
+    }
+    .overlay__brand small {
+      display: block;
+      margin-top: 0.55rem;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      color: var(--whitewash-dim);
     }
 
     .overlay__primary { list-style: none; margin-bottom: 2.6rem; }
@@ -467,24 +486,59 @@
     <section class="g-wrap" aria-label="Photographs">
       <div class="g-intro reveal-up">
         <span class="eyebrow">The island in pictures</span>
-        <p>A few plates from around Diu &mdash; the fort, the fishing quays, and the light at either end of the day.</p>
+        <p>A few plates from Eurotel and around Diu &mdash; our rooms, the fortress, Nagoa's sands, and the light at either end of the day.</p>
       </div>
 
       <div class="g-grid">
 
         <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-nagoa.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>Nagoa, before anyone</h3><span>Around the island</span></figcaption>
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/ac-room.png');background-position:center 68%"></div></div>
+          <figcaption class="plate__cap"><h3>Cool and unhurried</h3><span>Fortim</span></figcaption>
         </figure>
 
         <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-fort.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>The fortress walls</h3><span>Diu Fort</span></figcaption>
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/balcony.png');background-position:center 68%"></div></div>
+          <figcaption class="plate__cap"><h3>Morning on the balcony</h3><span>Casa Azul</span></figcaption>
         </figure>
 
         <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-harbour.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>Vanakbara harbour</h3><span>The quays</span></figcaption>
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/normal.png');background-position:center 68%"></div></div>
+          <figcaption class="plate__cap"><h3>The quiet hours</h3><span>P&aacute;tio</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-nagoa-sunset.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>The last of the light</h3><span>Nagoa</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-fort-sea.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>The fortress and the sea</h3><span>Diu Fort</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-caves.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>Naida Caves</h3><span>Around the island</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-nagoa.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>Nagoa, wide open</h3><span>Around the island</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-garden.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>Bougainvillea at dusk</h3><span>Seafront gardens</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-zampa.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>Through the Zampa gate</h3><span>Diu Fort</span></figcaption>
+        </figure>
+
+        <figure class="plate reveal-up">
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-flamingo.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>The flamingo watch</h3><span>Bird sanctuary</span></figcaption>
         </figure>
 
         <figure class="plate reveal-up">
@@ -493,33 +547,19 @@
         </figure>
 
         <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-church.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>St. Paul's fa&ccedil;ade</h3><span>Portuguese quarter</span></figcaption>
-        </figure>
-
-        <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/gal-caves.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>Naida Caves</h3><span>Around the island</span></figcaption>
-        </figure>
-
-        <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-lunch.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>A long lunch</h3><span>The table</span></figcaption>
-        </figure>
-
-        <figure class="plate reveal-up">
-          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/day-sunset.jpg')"></div></div>
-          <figcaption class="plate__cap"><h3>Sunset over the flats</h3><span>Around the island</span></figcaption>
+          <div class="plate__frame"><div class="plate__img" style="background-image:url('media/diu-fort-niche.jpg')"></div></div>
+          <figcaption class="plate__cap"><h3>A saint in the wall</h3><span>Portuguese carving</span></figcaption>
         </figure>
 
       </div>
 
-      <p class="g-credit">Photography: SMarndi, JediPro, Mohmadsoyab Qureshi, Sarasrewa, Dublinsantosh, Aotearoa &amp; SHOYEB ANSARI via Wikimedia Commons (CC BY-SA / CC BY). Placeholder imagery &mdash; replace with your own Diu photography before launch.</p>
+      <p class="g-credit">Room photography &copy; Eurotel. Some location photographs via Wikimedia Commons (CC BY-SA): Sudhakar Kumawat, JediPro, Dilip Somani, Aotearoa and others; additional location imagery supplied by the property. Confirm you hold the rights to all location images before launch.</p>
     </section>
   </main>
 
   <footer class="foot">
     <img class="foot__mark" src="media/logo-mark-gold.svg" alt="Eurotel" width="34" height="34" />
+    <p class="foot__slogan">Where the sea begins</p>
     <nav class="foot__links" aria-label="Footer">
       <a href="index.html#rooms">Rooms</a>
       <a href="index.html#hero">The Hotel</a>
@@ -546,6 +586,7 @@
       <div class="overlay__brand">
         <img src="media/logo-mark-gold.svg" alt="Eurotel" width="48" height="48" />
         <span>EUROTEL</span>
+        <small>Where the sea begins</small>
       </div>
 
       <ul class="overlay__primary">
