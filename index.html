@@ -143,7 +143,6 @@
       overflow: hidden;
       color: var(--whitewash);
       text-align: center;
-      padding-bottom: clamp(88px, 12vh, 128px); /* reserve space so the lockup centers above the sticky bar */
     }
 
     /* Background layers: photo slot -> indigo wash -> tile -> vignette */
@@ -230,67 +229,6 @@
       line-height: 1.5;
       color: var(--whitewash-dim);
     }
-
-    /* ---------- Booking / enquiry bar ---------- */
-    .booking {
-      position: fixed;          /* sticky throughout the whole page */
-      z-index: 45;
-      bottom: clamp(1rem, 3.2vh, 2.4rem);
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(1120px, calc(100% - clamp(1.6rem, 5vw, 4rem)));
-      display: flex;
-      align-items: stretch;
-      background: var(--whitewash);
-      box-shadow: 0 18px 48px rgba(13, 22, 16, 0.34);
-    }
-    .booking__field {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 1.15rem clamp(1.2rem, 2.2vw, 2.1rem);
-      border-right: 1px solid rgba(42, 38, 34, 0.12);
-      text-align: left;
-    }
-    .booking__field label {
-      font-family: var(--sans);
-      font-size: 0.6rem;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--brass);
-    }
-    .booking__field input,
-    .booking__field select {
-      font-family: var(--serif);
-      font-size: 1.02rem;
-      color: var(--charcoal);
-      border: none;
-      background: transparent;
-      outline: none;
-      width: 100%;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    .booking__field input::-webkit-calendar-picker-indicator { opacity: 0.35; cursor: pointer; }
-    .booking__field input:focus-visible,
-    .booking__field select:focus-visible { color: var(--green); }
-
-    .booking__submit {
-      flex: 0 0 clamp(180px, 22%, 260px);
-      border: none;
-      cursor: pointer;
-      background: var(--green);
-      color: var(--whitewash);
-      font-family: var(--sans);
-      font-size: 0.82rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      transition: background 0.35s var(--ease);
-    }
-    .booking__submit:hover { background: var(--green-hover); }
 
     /* ---------- Enquiry dialog (terms acceptance + WhatsApp / email hand-off) ---------- */
     .enquire {
@@ -710,9 +648,6 @@
       .nav__util-contact { display: none; }
       .nav { padding: 1.5rem 1.4rem; }
       .lockup__name { letter-spacing: 0.1em; }
-      .booking { flex-direction: column; width: calc(100% - 1.6rem); }
-      .booking__field { border-right: none; border-bottom: 1px solid rgba(42, 38, 34, 0.12); }
-      .booking__submit { flex: 0 0 auto; padding: 1.15rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -745,7 +680,7 @@
   <nav class="nav" aria-label="Primary">
     <div class="nav__group nav__desktop-links">
       <a class="nav__link" href="#rooms">Rooms</a>
-      <a class="nav__link" href="#hotel">The Hotel</a>
+      <a class="nav__link" href="#hero">The Hotel</a>
       <a class="nav__link" href="experiences.html">Experiences</a>
       <a class="nav__link" href="gallery.html">Gallery</a>
     </div>
@@ -764,7 +699,7 @@
   </nav>
 
   <!-- ============ HERO ============ -->
-  <header class="hero">
+  <header class="hero" id="hero">
     <div class="hero__bg"></div>
     <!-- Hero video: add a <source> below (or set background-image on .hero__photo for a still) -->
     <div class="hero__photo">
@@ -810,29 +745,6 @@
 
       <p class="lockup__tag">Whitewashed walls, blue tiles, and the unhurried luxury of a Portuguese afternoon in Diu.</p>
     </div>
-
-    <form class="booking" aria-label="Check dates and enquire">
-      <div class="booking__field">
-        <label for="checkin">Check-in</label>
-        <input type="date" id="checkin" name="checkin" />
-      </div>
-      <div class="booking__field">
-        <label for="checkout">Check-out</label>
-        <input type="date" id="checkout" name="checkout" />
-      </div>
-      <div class="booking__field">
-        <label for="guests">Guests</label>
-        <select id="guests" name="guests">
-          <option value="" disabled selected>Select</option>
-          <option>1 guest</option>
-          <option>2 guests</option>
-          <option>3 guests</option>
-          <option>4 guests</option>
-          <option>5+ guests</option>
-        </select>
-      </div>
-      <button class="booking__submit" type="submit">Enquire</button>
-    </form>
   </header>
 
   <!-- ============ SCROLL-PINNED STORY ============ -->
@@ -934,7 +846,7 @@
 
       <ul class="overlay__primary">
         <li><a href="#rooms">Rooms &amp; Suites</a></li>
-        <li><a href="#hotel">The Hotel</a></li>
+        <li><a href="#hero">The Hotel</a></li>
         <li><a href="experiences.html">Experiences</a></li>
         <li><a href="gallery.html">Gallery</a></li>
         <li><a href="#offers">Offers &amp; Escapes</a></li>
@@ -970,7 +882,7 @@
 
       <p class="eyebrow enquire__eyebrow">Booking Enquiry</p>
       <h3 class="enquire__title">We confirm every stay personally</h3>
-      <p class="enquire__summary" id="enquireSummary">Send us your dates and we'll reply with availability and a quote.</p>
+      <p class="enquire__summary">Message us your dates and group size, and we'll reply with availability and a quote.</p>
 
       <label class="enquire__consent">
         <input type="checkbox" id="acceptTerms" />
@@ -1120,38 +1032,16 @@
       var accept = document.getElementById("acceptTerms");
       var waLink = document.getElementById("enquireWhatsApp");
       var mailLink = document.getElementById("enquireEmail");
-      var summary = document.getElementById("enquireSummary");
-      var booking = document.querySelector(".booking");
       var lastTrigger = null;
 
-      function fmtDate(v) {
-        if (!v) return "";
-        var d = new Date(v + "T00:00:00");
-        if (isNaN(d)) return v;
-        return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-      }
-
       function buildMessage() {
-        var ci = fmtDate(document.getElementById("checkin").value);
-        var co = fmtDate(document.getElementById("checkout").value);
-        var g = document.getElementById("guests").value;
-        var lines = ["Hello Eurotel, I would like to enquire about a stay."];
-        if (ci) lines.push("Check-in: " + ci);
-        if (co) lines.push("Check-out: " + co);
-        if (g) lines.push("Guests: " + g);
-        lines.push("I have read and accept the Terms & Conditions published on your website.");
-        return lines.join("\n");
+        return [
+          "Hello Eurotel, I would like to enquire about a stay.",
+          "I have read and accept the Terms & Conditions published on your website."
+        ].join("\n");
       }
 
       function refreshEnquire() {
-        var ci = fmtDate(document.getElementById("checkin").value);
-        var co = fmtDate(document.getElementById("checkout").value);
-        var g = document.getElementById("guests").value;
-        if (ci || co || g) {
-          summary.textContent = (ci || "Any date") + " — " + (co || "any date") + (g ? " · " + g : "");
-        } else {
-          summary.textContent = "Send us your dates and we'll reply with availability and a quote.";
-        }
         var msg = buildMessage();
         waLink.href = "https://wa.me/" + CONTACT.whatsapp + "?text=" + encodeURIComponent(msg);
         mailLink.href = "mailto:" + CONTACT.email + "?subject=" + encodeURIComponent(CONTACT.subject) + "&body=" + encodeURIComponent(msg);
@@ -1181,12 +1071,6 @@
         if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
       }
 
-      if (booking) {
-        booking.addEventListener("submit", function (e) {
-          e.preventDefault();
-          openEnquire(booking.querySelector(".booking__submit"));
-        });
-      }
       document.querySelectorAll("[data-enquire]").forEach(function (el) {
         el.addEventListener("click", function (e) {
           e.preventDefault();
