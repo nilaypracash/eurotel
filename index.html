@@ -513,13 +513,16 @@
       transform: translateY(100%);   /* stacked below; JS slides them with scroll */
       will-change: transform;
     }
-    .media video {
+    .media video,
+    .media img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+    /* bias the crop toward the bed/floor so the frame doesn't land on the ceiling */
+    .media img { object-position: 50% 70%; }
     .media__ph {
       position: relative;
       font-family: var(--serif);
@@ -768,9 +771,9 @@
     <div class="showcase__col showcase__text">
       <article class="rm" data-room="0">
         <div class="rm__inner">
-          <p class="eyebrow rm__eyebrow">Sea Facing Suite</p>
+          <p class="eyebrow rm__eyebrow">Air-conditioned Room</p>
           <h2 class="rm__name">FORTIM</h2>
-          <p class="rm__desc">A suite set above the old fort walls, with a private balcony that opens straight onto the water.</p>
+          <p class="rm__desc">A cool, air-conditioned room in warm wood and soft light — restful and quiet, made for the slow hours of a Diu afternoon.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
             <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
@@ -781,9 +784,9 @@
 
       <article class="rm" data-room="1">
         <div class="rm__inner">
-          <p class="eyebrow rm__eyebrow">Courtyard Room</p>
+          <p class="eyebrow rm__eyebrow">Balcony Room</p>
           <h2 class="rm__name">CASA AZUL</h2>
-          <p class="rm__desc">A calm room wrapped around the blue tiled courtyard, shaded and cool through the long afternoon.</p>
+          <p class="rm__desc">A bright room opening to its own private balcony, where the light softens through the afternoon and the air stays cool.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
             <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
@@ -794,9 +797,9 @@
 
       <article class="rm" data-room="2">
         <div class="rm__inner">
-          <p class="eyebrow rm__eyebrow">Garden Villa</p>
+          <p class="eyebrow rm__eyebrow">Standard Room</p>
           <h2 class="rm__name">PÁTIO</h2>
-          <p class="rm__desc">A private villa opening to the central garden, with a wooden veranda and cool stone floors underfoot.</p>
+          <p class="rm__desc">An easy, comfortable room with everything you need for the stay — warm wood, soft light, and a good night's rest.</p>
           <a class="rm__more" href="#">&rarr; Show details</a>
           <div class="rm__actions">
             <a class="btn-ghost" href="#enquire" data-enquire>Enquire</a>
@@ -810,16 +813,13 @@
       <div class="showcase__sticky">
         <div class="showcase__frame">
           <div class="media media--1 is-active">
-            <span class="media__ph">Fortim video</span>
-            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-fortim.mp4" type="video/mp4" /> --></video>
+            <img src="media/ac-room.png" alt="Fortim — air-conditioned room" loading="lazy" />
           </div>
           <div class="media media--2">
-            <span class="media__ph">Casa Azul video</span>
-            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-casaazul.mp4" type="video/mp4" /> --></video>
+            <img src="media/balcony.png" alt="Casa Azul — room with private balcony" loading="lazy" />
           </div>
           <div class="media media--3">
-            <span class="media__ph">Pátio video</span>
-            <video autoplay muted loop playsinline poster=""><!-- <source src="images/room-patio.mp4" type="video/mp4" /> --></video>
+            <img src="media/normal.png" alt="Pátio — standard room" loading="lazy" />
           </div>
         </div>
       </div>
